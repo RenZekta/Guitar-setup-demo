@@ -19,16 +19,10 @@
             --scrollbar-bg: #2a2a35;
             --scrollbar-thumb: #4a4a58;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
             background: var(--bg);
-            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+            font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
             color: var(--text);
             display: flex;
             justify-content: center;
@@ -36,1233 +30,801 @@
             min-height: 100vh;
             padding: 12px;
             user-select: none;
-            -webkit-user-select: none;
         }
-
         .container {
             max-width: 100%;
             width: 100%;
             background: var(--panel-bg);
             border-radius: 18px;
             padding: 20px 16px 16px;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
             gap: 14px;
+            position: relative;
         }
-
         .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
         }
         .header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: -0.3px;
+            font-size: 1.5rem; font-weight: 700;
             background: linear-gradient(135deg, #e8a850, #f0c878);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
-        .header .subtitle {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            font-weight: 400;
-        }
-
+        .subtitle { font-size: 0.8rem; color: var(--text-secondary); }
         .canvas-wrap {
-            position: relative;
-            background: #1a1008;
-            border-radius: 12px;
-            overflow-x: auto;
-            overflow-y: hidden;
-            border: 2px solid #3a2a18;
-            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
-            cursor: pointer;
-            height: 510px;
-            max-height: 58vh;
-            -webkit-overflow-scrolling: touch;
+            position: relative; background: #1a1008; border-radius: 12px; overflow-x: auto; overflow-y: hidden;
+            border: 2px solid #3a2a18; box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+            cursor: pointer; height: 510px; max-height: 58vh; -webkit-overflow-scrolling: touch;
             scroll-behavior: smooth;
         }
-        .canvas-wrap::-webkit-scrollbar {
-            height: 10px;
-            background: var(--scrollbar-bg);
-            border-radius: 0 0 10px 10px;
-        }
-        .canvas-wrap::-webkit-scrollbar-thumb {
-            background: var(--scrollbar-thumb);
-            border-radius: 5px;
-            border: 2px solid var(--scrollbar-bg);
-        }
-        .canvas-wrap::-webkit-scrollbar-thumb:hover {
-            background: #5a5a6a;
-        }
-        .canvas-wrap::-webkit-scrollbar-track {
-            background: var(--scrollbar-bg);
-            border-radius: 0 0 10px 10px;
-        }
-
-        canvas {
-            display: block;
-            border-radius: 10px;
-        }
-
+        .canvas-wrap::-webkit-scrollbar { height: 10px; background: var(--scrollbar-bg); border-radius: 0 0 10px 10px; }
+        .canvas-wrap::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 5px; border: 2px solid var(--scrollbar-bg); }
+        canvas { display: block; border-radius: 10px; }
         .scroll-hint {
-            position: absolute;
-            bottom: 8px;
-            right: 16px;
-            background: rgba(0, 0, 0, 0.65);
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.7rem;
-            padding: 4px 10px;
-            border-radius: 12px;
-            pointer-events: none;
-            letter-spacing: 0.3px;
-            transition: opacity 1.5s;
-            z-index: 2;
+            position: absolute; bottom: 8px; right: 16px; background: rgba(0,0,0,0.65); color: rgba(255,255,255,0.7);
+            font-size: 0.7rem; padding: 4px 10px; border-radius: 12px; pointer-events: none; transition: opacity 1.5s; z-index: 2;
         }
-
-        .controls-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            align-items: flex-start;
-        }
+        .controls-row { display: flex; flex-wrap: wrap; gap: 12px; }
         .control-group {
-            flex: 1;
-            min-width: 160px;
-            background: #1e1e28;
-            border-radius: 10px;
-            padding: 12px 14px;
-            border: 1px solid var(--border);
+            flex: 1; min-width: 160px; background: #1e1e28; border-radius: 10px; padding: 12px 14px; border: 1px solid var(--border);
         }
-        .control-group label {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.82rem;
-            font-weight: 600;
-            letter-spacing: 0.2px;
-            color: var(--text);
-            margin-bottom: 4px;
-        }
-        .control-group label .val {
-            font-size: 0.78rem;
-            color: var(--accent);
-            font-weight: 700;
-            min-width: 50px;
-            text-align: right;
-            background: #2a2a38;
-            padding: 2px 7px;
-            border-radius: 4px;
-        }
-        .control-group .desc {
-            font-size: 0.68rem;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-            line-height: 1.3;
-        }
-        input[type="range"] {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 8px;
-            border-radius: 4px;
-            background: var(--slider-track);
-            outline: none;
-            cursor: pointer;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: var(--accent);
-            cursor: pointer;
-            border: 3px solid #1a1a1f;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-            transition: transform 0.1s;
-        }
-        input[type="range"]::-webkit-slider-thumb:active {
-            transform: scale(1.15);
-        }
-        .intonation-slider::-webkit-slider-thumb {
-            background: var(--accent2) !important;
-        }
-        .zoom-slider::-webkit-slider-thumb {
-            background: #b890d8 !important;
-        }
-
-        .btn-row {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
+        .control-group label { display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; font-weight: 600; margin-bottom: 4px; }
+        .control-group label .val { font-size: 0.78rem; color: var(--accent); font-weight: 700; min-width: 50px; text-align: right; background: #2a2a38; padding: 2px 7px; border-radius: 4px; }
+        .control-group .desc { font-size: 0.68rem; color: var(--text-secondary); margin-bottom: 6px; }
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 8px; border-radius: 4px; background: var(--slider-track); outline: none; cursor: pointer; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 3px solid #1a1a1f; }
+        .intonation-slider::-webkit-slider-thumb { background: var(--accent2) !important; }
+        .zoom-slider::-webkit-slider-thumb { background: #b890d8 !important; }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
         button {
-            padding: 9px 15px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: #2a2a38;
-            color: var(--text);
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.82rem;
-            letter-spacing: 0.2px;
-            transition: all 0.2s;
-            white-space: nowrap;
+            padding: 9px 15px; border-radius: 8px; border: 1px solid var(--border); background: #2a2a38; color: var(--text);
+            cursor: pointer; font-weight: 600; font-size: 0.82rem; transition: all 0.2s; white-space: nowrap;
         }
-        button:hover {
-            background: #3a3a4c;
-            border-color: #5a5a70;
-        }
-        button.active-btn {
-            background: #3d3025;
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-        button.reset-btn {
-            background: #3d2525;
-            border-color: var(--danger);
-            color: #e88888;
-        }
-        button.reset-btn:hover {
-            background: #4d3030;
-        }
-
+        button:hover { background: #3a3a4c; border-color: #5a5a70; }
+        button.active-btn { background: #3d3025; border-color: var(--accent); color: var(--accent); }
+        button.reset-btn { background: #3d2525; border-color: var(--danger); color: #e88888; }
         .info-panel {
-            background: #1e1e28;
-            border-radius: 10px;
-            padding: 10px 14px;
-            border: 1px solid var(--border);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 14px;
-            align-items: center;
-            font-size: 0.8rem;
-            min-height: 44px;
+            background: #1e1e28; border-radius: 10px; padding: 10px 14px; border: 1px solid var(--border);
+            display: flex; flex-wrap: wrap; gap: 14px; align-items: center; font-size: 0.8rem; min-height: 44px;
         }
-        .info-panel .note-display {
-            font-size: 1.8rem;
-            font-weight: 700;
-            letter-spacing: -1px;
-            min-width: 75px;
-            text-align: center;
-            background: #2a2a38;
-            border-radius: 8px;
-            padding: 3px 10px;
+        .note-display { font-size: 1.8rem; font-weight: 700; min-width: 75px; text-align: center; background: #2a2a38; border-radius: 8px; padding: 3px 10px; }
+        .cents-display { font-size: 1.1rem; font-weight: 600; }
+        .cents-sharp { color: #e87060; } .cents-flat { color: #6098d8; } .cents-good { color: #5cb878; }
+        .detail { color: var(--text-secondary); font-size: 0.72rem; }
+        .legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.68rem; color: var(--text-secondary); align-items: center; }
+        .legend span { display: flex; align-items: center; gap: 3px; }
+        .legend .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+        .note-dropdown {
+            position: absolute; background: #2a2a38; border: 1px solid var(--accent); border-radius: 8px;
+            z-index: 1000; max-height: 260px; overflow-y: auto; overflow-x: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5); min-width: 80px;
         }
-        .info-panel .cents-display {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-        .info-panel .cents-sharp {
-            color: #e87060;
-        }
-        .info-panel .cents-flat {
-            color: #6098d8;
-        }
-        .info-panel .cents-good {
-            color: #5cb878;
-        }
-        .info-panel .detail {
-            color: var(--text-secondary);
-            font-size: 0.72rem;
-        }
-
-        .legend {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            font-size: 0.68rem;
-            color: var(--text-secondary);
-            align-items: center;
-        }
-        .legend span {
-            display: flex;
-            align-items: center;
-            gap: 3px;
-        }
-        .legend .dot {
-            width: 9px;
-            height: 9px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
+        .note-dropdown .note-item { padding: 6px 14px; cursor: pointer; font-size: 0.82rem; white-space: nowrap; color: var(--text); }
+        .note-dropdown .note-item:hover { background: #3a3a4c; }
+        .note-dropdown .note-item.selected { background: #3d3025; color: var(--accent); font-weight: 600; }
         @media (max-width: 700px) {
-            .container {
-                padding: 10px 6px 10px;
-                gap: 8px;
-            }
-            .controls-row {
-                gap: 6px;
-            }
-            .control-group {
-                min-width: 120px;
-                padding: 8px 10px;
-            }
-            .header h1 {
-                font-size: 1.2rem;
-            }
-            .canvas-wrap {
-                height: 380px;
-                max-height: 50vh;
-            }
-            .info-panel .note-display {
-                font-size: 1.3rem;
-                min-width: 55px;
-            }
-            button {
-                padding: 7px 11px;
-                font-size: 0.74rem;
-            }
+            .container { padding: 10px 6px; gap: 8px; }
+            .control-group { min-width: 120px; padding: 8px 10px; }
+            .canvas-wrap { height: 380px; max-height: 50vh; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div>
-                <h1>🎸 Tuning &amp; Intonation — 24 Frets</h1>
-                <span class="subtitle">Scroll ↔ · Zoom to inspect high frets · Click to play</span>
-            </div>
-            <div class="legend">
-                <span><span class="dot" style="background:#5cb878;"></span> In tune (±3¢)</span>
-                <span><span class="dot" style="background:#d4a040;"></span> Slightly off</span>
-                <span><span class="dot" style="background:#e87060;"></span> Sharp</span>
-                <span><span class="dot" style="background:#6098d8;"></span> Flat</span>
-            </div>
+<div class="container" id="mainContainer">
+    <div class="header">
+        <div>
+            <h1>🎸 Tuning &amp; Intonation — 24 Frets</h1>
+            <span class="subtitle">Scroll ↔ · Zoom · Click to play</span>
         </div>
-
-        <div class="canvas-wrap" id="canvasWrap">
-            <canvas id="mainCanvas"></canvas>
-            <div class="scroll-hint" id="scrollHint">↔ scroll to see all 24 frets</div>
-        </div>
-
-        <div class="controls-row">
-            <div class="control-group">
-                <label>🎯 Tuning Offset <span class="val" id="tuningVal">0 ¢</span></label>
-                <div class="desc">Shifts ALL notes equally</div>
-                <input type="range" id="tuningSlider" min="-50" max="50" value="0" step="1" class="tuning-slider">
-            </div>
-            <div class="control-group">
-                <label>🔧 Intonation (Saddle) <span class="val" id="intonationVal">0.0 mm</span></label>
-                <div class="desc">Saddle position — errors grow up the neck</div>
-                <input type="range" id="intonationSlider" min="-25" max="25" value="0" step="0.5" class="intonation-slider">
-            </div>
-            <div class="control-group">
-                <label>🔍 Horizontal Zoom <span class="val" id="zoomVal">1.0×</span></label>
-                <div class="desc">Spread out high frets for detail</div>
-                <input type="range" id="zoomSlider" min="0.8" max="3.0" value="1.0" step="0.1" class="zoom-slider">
-            </div>
-        </div>
-
-        <div class="btn-row">
-            <button id="stringSelectBtn" class="active-btn">📍 All Strings</button>
-            <button id="resetBtn" class="reset-btn">↺ Reset All</button>
-            <button id="presetBadBtn">⚠️ Bad Intonation</button>
-            <button id="presetDetuneBtn">🎵 Detuned</button>
-            <button id="presetBothBtn">💥 Both Issues</button>
-        </div>
-
-        <div class="info-panel" id="infoPanel">
-            <div class="note-display" id="noteDisplay">—</div>
-            <div>
-                <div class="cents-display" id="centsDisplay">Hover or click the fretboard</div>
-                <div class="detail" id="detailDisplay"></div>
-            </div>
+        <div class="legend">
+            <span><span class="dot" style="background:#5cb878;"></span> In tune (±3¢)</span>
+            <span><span class="dot" style="background:#d4a040;"></span> Slightly off</span>
+            <span><span class="dot" style="background:#e87060;"></span> Sharp</span>
+            <span><span class="dot" style="background:#6098d8;"></span> Flat</span>
         </div>
     </div>
 
-    <script>
-        (function() {
-            const canvas = document.getElementById('mainCanvas');
-            const ctx = canvas.getContext('2d');
-            const wrap = document.getElementById('canvasWrap');
-            const scrollHint = document.getElementById('scrollHint');
-            const tuningSlider = document.getElementById('tuningSlider');
-            const intonationSlider = document.getElementById('intonationSlider');
-            const zoomSlider = document.getElementById('zoomSlider');
-            const tuningValEl = document.getElementById('tuningVal');
-            const intonationValEl = document.getElementById('intonationVal');
-            const zoomValEl = document.getElementById('zoomVal');
-            const noteDisplay = document.getElementById('noteDisplay');
-            const centsDisplay = document.getElementById('centsDisplay');
-            const detailDisplay = document.getElementById('detailDisplay');
-            const resetBtn = document.getElementById('resetBtn');
-            const presetBadBtn = document.getElementById('presetBadBtn');
-            const presetDetuneBtn = document.getElementById('presetDetuneBtn');
-            const presetBothBtn = document.getElementById('presetBothBtn');
-            const stringSelectBtn = document.getElementById('stringSelectBtn');
+    <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="mainCanvas"></canvas>
+        <div class="scroll-hint" id="scrollHint">↔ scroll to see all 24 frets</div>
+    </div>
 
-            // --- State ---
-            let tuningCents = 0;
-            let intonationSliderVal = 0;
-            let widthScale = 1.0;
-            const BASE_SCALE_PX = 700;
-            const LOGICAL_HEIGHT = 490;
+    <div class="controls-row">
+        <div class="control-group">
+            <label>🎯 Tuning Offset <span class="val" id="tuningVal">0 ¢</span></label>
+            <div class="desc">Shifts ALL notes equally</div>
+            <input type="range" id="tuningSlider" min="-50" max="50" value="0" step="1" class="tuning-slider">
+        </div>
+        <div class="control-group">
+            <label>🔧 Intonation (Saddle) <span class="val" id="intonationVal">0.0 mm</span></label>
+            <div class="desc">Saddle position — errors grow up the neck</div>
+            <input type="range" id="intonationSlider" min="-25" max="25" value="0" step="0.5" class="intonation-slider">
+        </div>
+        <div class="control-group">
+            <label>🔍 Horizontal Zoom <span class="val" id="zoomVal">1.0×</span></label>
+            <div class="desc">Spread out high frets for detail</div>
+            <input type="range" id="zoomSlider" min="0.8" max="3.0" value="1.0" step="0.1" class="zoom-slider">
+        </div>
+    </div>
 
-            let hoveredString = -1;
-            let hoveredFret = -1;
-            let activeVibrations = [];
-            let selectedString = -1;
+    <div class="btn-row">
+        <button id="stringSelectBtn" class="active-btn">📍 All Strings</button>
+        <button id="resetBtn" class="reset-btn">↺ Reset All</button>
+        <button id="presetBadBtn">⚠️ Bad Intonation</button>
+        <button id="presetDetuneBtn">🎵 Detuned</button>
+        <button id="presetBothBtn">💥 Both Issues</button>
+    </div>
 
-            // --- Audio ---
-            let audioCtx = null;
-            const MAX_VOICES = 8;
-            let activeVoices = [];
+    <div class="info-panel" id="infoPanel">
+        <div class="note-display" id="noteDisplay">—</div>
+        <div>
+            <div class="cents-display" id="centsDisplay">Hover or click the fretboard</div>
+            <div class="detail" id="detailDisplay"></div>
+        </div>
+    </div>
+</div>
 
-            function getAudioContext() {
-                if (!audioCtx) {
-                    audioCtx = new(window.AudioContext || window.webkitAudioContext)();
-                }
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                return audioCtx;
-            }
+<script>
+(function() {
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    const wrap = document.getElementById('canvasWrap');
+    const container = document.getElementById('mainContainer');
+    const scrollHint = document.getElementById('scrollHint');
+    const tuningSlider = document.getElementById('tuningSlider');
+    const intonationSlider = document.getElementById('intonationSlider');
+    const zoomSlider = document.getElementById('zoomSlider');
+    const tuningValEl = document.getElementById('tuningVal');
+    const intonationValEl = document.getElementById('intonationVal');
+    const zoomValEl = document.getElementById('zoomVal');
+    const noteDisplay = document.getElementById('noteDisplay');
+    const centsDisplay = document.getElementById('centsDisplay');
+    const detailDisplay = document.getElementById('detailDisplay');
+    const resetBtn = document.getElementById('resetBtn');
+    const presetBadBtn = document.getElementById('presetBadBtn');
+    const presetDetuneBtn = document.getElementById('presetDetuneBtn');
+    const presetBothBtn = document.getElementById('presetBothBtn');
+    const stringSelectBtn = document.getElementById('stringSelectBtn');
 
-            function playNote(freq, velocity = 0.65) {
-                const ctx = getAudioContext();
-                const now = ctx.currentTime;
-                while (activeVoices.length >= MAX_VOICES) {
-                    const old = activeVoices.shift();
-                    try {
-                        old.gain.gain.cancelScheduledValues(0);
-                        old.gain.gain.setValueAtTime(0, now);
-                        old.osc.stop(now);
-                        old.noiseGain?.gain.cancelScheduledValues(0);
-                        old.noiseGain?.gain.setValueAtTime(0, now);
-                    } catch (e) {}
-                }
-                const osc = ctx.createOscillator();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(freq, now);
-                const gainNode = ctx.createGain();
-                gainNode.gain.setValueAtTime(velocity * 0.5, now);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
-                const filter = ctx.createBiquadFilter();
-                filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(freq * 3.5, now);
-                filter.Q.setValueAtTime(0.5, now);
-                osc.connect(filter);
-                filter.connect(gainNode);
-                gainNode.connect(ctx.destination);
-                osc.start(now);
-                osc.stop(now + 1.7);
-                const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.04, ctx.sampleRate);
-                const noiseData = noiseBuffer.getChannelData(0);
-                for (let i = 0; i < noiseData.length; i++) {
-                    noiseData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.008));
-                }
-                const noiseSource = ctx.createBufferSource();
-                noiseSource.buffer = noiseBuffer;
-                const noiseGain = ctx.createGain();
-                noiseGain.gain.setValueAtTime(velocity * 0.28, now);
-                noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
-                const noiseFilter = ctx.createBiquadFilter();
-                noiseFilter.type = 'bandpass';
-                noiseFilter.frequency.setValueAtTime(freq, now);
-                noiseFilter.Q.setValueAtTime(1.2, now);
-                noiseSource.connect(noiseFilter);
-                noiseFilter.connect(noiseGain);
-                noiseGain.connect(ctx.destination);
-                noiseSource.start(now);
-                noiseSource.stop(now + 0.05);
-                const voice = { osc, gain: gainNode, noiseGain, noiseSource, filter, noiseFilter };
-                activeVoices.push(voice);
-                setTimeout(() => {
-                    const idx = activeVoices.indexOf(voice);
-                    if (idx >= 0) activeVoices.splice(idx, 1);
-                }, 2000);
-            }
+    // --- State ---
+    let tuningCents = 0;
+    let widthScale = 1.0;
+    const BASE_SCALE_PX = 700;
+    const LOGICAL_HEIGHT = 490;
+    const NOMINAL_REF_MM = 649;
+    const FIXED_NUT_X = 70;
+    const OPEN_AREA_WIDTH = 28;
 
-            // --- Guitar Data ---
-            const stringNames = ['E4', 'B3', 'G3', 'D3', 'A2', 'E2'];
-            const stringMidiBase = [64, 59, 55, 50, 45, 40];
-            const stringGauges = [0.7, 0.9, 1.15, 1.6, 2.1, 2.7];
-            const NUM_STRINGS = 6;
-            const NUM_FRETS = 25; // includes open (0) and frets 1..24
-            const dotFrets = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
-            const doubleDotFrets = [12, 24];
-            // Frets that show numbers
-            const fretNumberFrets = new Set([3, 5, 7, 9, 12, 15, 17, 19, 21, 24]);
+    const nominalSaddleDistMm = [649, 651, 652, 651.5, 653, 654];
+    let intonationOffsets = [0,0,0,0,0,0];
+    let selectedString = -1;
+    let lastIntSliderVal = 0;
 
-            // --- Layout ---
-            function getLayout() {
-                const scalePx = BASE_SCALE_PX * widthScale;
-                const w = scalePx * 1.32;
-                const h = LOGICAL_HEIGHT;
-                const nutX = scalePx * 0.115;
-                const nominalSaddleX = nutX + scalePx;
-                const intonationPx = intonationSliderVal * (scalePx / BASE_SCALE_PX);
-                const actualSaddleX = nominalSaddleX + intonationPx;
-                const fretboardTop = h * 0.10;
-                const fretboardBottom = h * 0.76;
-                const fbHeight = fretboardBottom - fretboardTop;
-                const nutStringSpacing = fbHeight / (NUM_STRINGS + 0.4);
-                const saddleStringSpacing = fbHeight / (NUM_STRINGS - 0.2);
-                const stringYAtNut = (i) => fretboardTop + nutStringSpacing * (i + 0.2);
-                const stringYAtSaddle = (i) => fretboardTop + saddleStringSpacing * (i - 0.1);
-                const graphTop = h * 0.81;
-                const graphBottom = h * 0.965;
-                return {
-                    w,
-                    h,
-                    nutX,
-                    nominalSaddleX,
-                    actualSaddleX,
-                    scalePx,
-                    fretboardTop,
-                    fretboardBottom,
-                    fbHeight,
-                    nutStringSpacing,
-                    saddleStringSpacing,
-                    stringYAtNut,
-                    stringYAtSaddle,
-                    graphTop,
-                    graphBottom,
-                };
-            }
+    let stringTuningMidiBase = [64, 59, 55, 50, 45, 40];
+    let hoveredString = -1, hoveredFret = -1;
+    let activeVibrations = [];
 
-            function getFretX(fretNum, layout) {
-                if (fretNum === 0) return layout.nutX;
-                const frac = 1 - 1 / Math.pow(2, fretNum / 12);
-                return layout.nutX + frac * layout.scalePx;
-            }
+    let noteDropdown = null;
+    let dropdownStringIndex = -1;
 
-            function getStringYAtX(stringIdx, x, layout) {
-                const t = (x - layout.nutX) / layout.scalePx;
-                const tClamped = Math.max(0, Math.min(1, t));
-                const yNut = layout.stringYAtNut(stringIdx);
-                const ySaddle = layout.stringYAtSaddle(stringIdx);
-                return yNut + (ySaddle - yNut) * tClamped;
-            }
+    // --- Audio ---
+    let audioCtx = null;
+    const MAX_VOICES = 8;
+    let activeVoices = [];
+    function getAudioContext() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        return audioCtx;
+    }
+    function playNote(freq, vel=0.65) {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        while (activeVoices.length >= MAX_VOICES) {
+            const old = activeVoices.shift();
+            try { old.gain.gain.cancelScheduledValues(0); old.gain.gain.setValueAtTime(0,now); old.osc.stop(now); } catch(e){}
+        }
+        const osc = ctx.createOscillator(); osc.type = 'triangle'; osc.frequency.setValueAtTime(freq,now);
+        const gain = ctx.createGain(); gain.gain.setValueAtTime(vel*0.5,now); gain.gain.exponentialRampToValueAtTime(0.001,now+1.5);
+        const filt = ctx.createBiquadFilter(); filt.type = 'lowpass'; filt.frequency.setValueAtTime(freq*3.5,now); filt.Q.setValueAtTime(0.5,now);
+        osc.connect(filt); filt.connect(gain); gain.connect(ctx.destination);
+        osc.start(now); osc.stop(now+1.7);
+        const noiseBuf = ctx.createBuffer(1, ctx.sampleRate*0.04, ctx.sampleRate);
+        const data = noiseBuf.getChannelData(0);
+        for (let i=0; i<data.length; i++) data[i] = (Math.random()*2-1) * Math.exp(-i/(ctx.sampleRate*0.008));
+        const noise = ctx.createBufferSource(); noise.buffer = noiseBuf;
+        const ngain = ctx.createGain(); ngain.gain.setValueAtTime(vel*0.28,now); ngain.gain.exponentialRampToValueAtTime(0.001,now+0.04);
+        const nfilt = ctx.createBiquadFilter(); nfilt.type = 'bandpass'; nfilt.frequency.setValueAtTime(freq,now); nfilt.Q.setValueAtTime(1.2,now);
+        noise.connect(nfilt); nfilt.connect(ngain); ngain.connect(ctx.destination);
+        noise.start(now); noise.stop(now+0.05);
+        activeVoices.push({osc, gain, noiseGain:ngain, noise, filter:filt, noiseFilter:nfilt});
+        setTimeout(() => { const idx = activeVoices.indexOf(activeVoices[activeVoices.length-1]); if(idx>=0) activeVoices.splice(idx,1); }, 2000);
+    }
 
-            function getStringAndFret(mx, my, layout) {
-                let bestString = -1;
-                let bestDist = Infinity;
-                for (let s = 0; s < NUM_STRINGS; s++) {
-                    const yAtMx = getStringYAtX(s, mx, layout);
-                    const dist = Math.abs(my - yAtMx);
-                    if (dist < bestDist) { bestDist = dist;
-                        bestString = s; }
-                }
-                const maxDist = layout.nutStringSpacing * 0.75;
-                if (bestDist > maxDist) return { stringIdx: -1, fretNum: -1 };
-                let fretNum = -1;
-                if (mx < layout.nutX - 4) return { stringIdx: bestString, fretNum: -1 };
-                if (mx > layout.actualSaddleX + 4) return { stringIdx: bestString, fretNum: -1 };
-                for (let f = 0; f < NUM_FRETS; f++) {
-                    const fx = getFretX(f, layout);
-                    const fxNext = f < NUM_FRETS - 1 ? getFretX(f + 1, layout) : layout.actualSaddleX;
-                    if (mx >= fx - 3 && mx < fxNext - 1) { fretNum = f; break; }
-                }
-                if (fretNum < 0 && mx >= getFretX(NUM_FRETS - 1, layout) && mx <= layout.actualSaddleX + 2) {
-                    fretNum = NUM_FRETS - 1;
-                }
-                return { stringIdx: bestString, fretNum };
-            }
+    // --- Guitar Data ---
+    const stringNames = ['E4','B3','G3','D3','A2','E2'];
+    const stringGauges = [0.7,0.9,1.15,1.6,2.1,2.7];
+    const NUM_STRINGS = 6;
+    const NUM_FRETS = 26; // 0=open, 1-24=frets, 25=beyond 24th wire
+    const dotFrets = [3,5,7,9,12,15,17,19,21,24];
+    const doubleDotFrets = [12,24];
+    const fretNumberFrets = new Set([3,5,7,9,12,15,17,19,21,24]);
 
-            // --- Pitch ---
-            function getCentsDeviation(stringIdx, fretNum) {
-                const layout = getLayout();
-                const Lnom = layout.scalePx;
-                const deltaL = intonationSliderVal * (Lnom / BASE_SCALE_PX);
-                const Lactual = Lnom + deltaL;
-                if (fretNum === 0) return tuningCents;
-                const fretPos = Lnom * (1 - 1 / Math.pow(2, fretNum / 12));
-                const vibratingLength = Lactual - fretPos;
-                const f0Actual = Math.pow(2, tuningCents / 1200);
-                const fActual = f0Actual * (Lactual / vibratingLength);
-                const fIdeal = Math.pow(2, fretNum / 12);
-                return 1200 * Math.log2(fActual / fIdeal);
-            }
+    function midiToNoteName(midi) {
+        const notes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+        return notes[((midi%12)+12)%12] + (Math.floor(midi/12)-1);
+    }
 
-            function getNoteInfo(stringIdx, fretNum) {
-                const midiBase = stringMidiBase[stringIdx];
-                const nominalMidi = midiBase + fretNum;
-                const totalCents = getCentsDeviation(stringIdx, fretNum);
-                return { nominalMidi, totalCents };
-            }
+    // --- Layout ---
+    function getLayout() {
+        const scalePx = BASE_SCALE_PX * widthScale;
+        const nutX = FIXED_NUT_X;
+        const openStartX = nutX - OPEN_AREA_WIDTH;
+        const pixelsPerMm = scalePx / NOMINAL_REF_MM;
 
-            function midiToNoteName(midi) {
-                const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-                const octave = Math.floor(midi / 12) - 1;
-                const noteIdx = ((midi % 12) + 12) % 12;
-                return noteNames[noteIdx] + octave;
-            }
+        const nominalSaddleXArr = [];
+        const actualSaddleXArr = [];
+        for (let i=0; i<NUM_STRINGS; i++) {
+            const nominalX = nutX + nominalSaddleDistMm[i] * pixelsPerMm;
+            nominalSaddleXArr.push(nominalX);
+            const offsetMm = intonationOffsets[i] * 0.16;
+            actualSaddleXArr.push(nominalX + offsetMm * pixelsPerMm);
+        }
 
-            function getFrequency(stringIdx, fretNum) {
-                const midiBase = stringMidiBase[stringIdx];
-                const nominalFreq = 440 * Math.pow(2, (midiBase + fretNum - 69) / 12);
-                const totalCents = getCentsDeviation(stringIdx, fretNum);
-                return nominalFreq * Math.pow(2, totalCents / 1200);
-            }
+        const maxSaddle = Math.max(...actualSaddleXArr);
+        const w = maxSaddle + 150;
+        const h = LOGICAL_HEIGHT;
+        const fbHeight = h*0.76 - h*0.10;
+        return {
+            w, h, nutX, openStartX, scalePx, fbHeight,
+            fretboardTop: h*0.10, fretboardBottom: h*0.76,
+            nutStringSpacing: fbHeight/(NUM_STRINGS+0.4),
+            saddleStringSpacing: fbHeight/(NUM_STRINGS-0.2),
+            stringYAtNut: (i) => h*0.10 + (fbHeight/(NUM_STRINGS+0.4))*(i+0.2),
+            stringYAtSaddle: (i) => h*0.10 + (fbHeight/(NUM_STRINGS-0.2))*(i-0.1),
+            graphTop: h*0.81, graphBottom: h*0.965,
+            nominalSaddleXArr, actualSaddleXArr, pixelsPerMm
+        };
+    }
 
-            // --- Color ---
-            function centsToColor(cents) {
-                const absCents = Math.abs(cents);
-                const clamped = Math.min(absCents, 30);
-                const t = clamped / 30;
-                if (absCents < 3) {
-                    const g = 200;
-                    const r = 60 + t * 30;
-                    const b = 60 + t * 20;
-                    return { r: Math.round(r), g: Math.round(g), b: Math.round(b), alpha: 0.5 + t * 0.3 };
-                }
-                if (cents > 0) {
-                    const h = 120 - t * 120;
-                    const s = 0.6 + t * 0.4;
-                    const l = 0.4 + t * 0.12;
-                    return hslToRgb(h / 360, s, l);
-                } else {
-                    const h = 120 + t * 120;
-                    const s = 0.55 + t * 0.45;
-                    const l = 0.38 + t * 0.14;
-                    return hslToRgb(h / 360, s, l);
+    function getFretX(fretNum, layout) {
+        if (fretNum === 0) return layout.nutX;
+        return layout.nutX + layout.scalePx * (1 - 1/Math.pow(2, fretNum/12));
+    }
+
+    function getStringYAtX(stringIdx, x, layout) {
+        const t = Math.max(0, Math.min(1, (x - layout.nutX) / layout.scalePx));
+        return layout.stringYAtNut(stringIdx) + (layout.stringYAtSaddle(stringIdx) - layout.stringYAtNut(stringIdx)) * t;
+    }
+
+    function getStringAndFret(mx, my, layout) {
+        let bestString = -1, bestDist = Infinity;
+        for (let s=0; s<NUM_STRINGS; s++) {
+            const yAtMx = getStringYAtX(s, mx, layout);
+            const dist = Math.abs(my - yAtMx);
+            if (dist < bestDist) { bestDist = dist; bestString = s; }
+        }
+        if (bestDist > layout.nutStringSpacing*0.75) return {stringIdx:-1, fretNum:-1};
+
+        let fretNum = -1;
+        if (mx < layout.openStartX - 4 || mx > layout.actualSaddleXArr[bestString] + 4) return {stringIdx:bestString, fretNum:-1};
+
+        if (mx >= layout.openStartX && mx < layout.nutX) {
+            fretNum = 0;
+        } else if (mx >= layout.nutX) {
+            for (let n=1; n<=25; n++) {
+                const left = (n===1) ? layout.nutX : getFretX(n-1, layout);
+                const right = (n===25) ? layout.actualSaddleXArr[bestString] : getFretX(n, layout);
+                if (mx >= left - 2 && mx < right - 1) {
+                    fretNum = n;
+                    break;
                 }
             }
+            if (fretNum < 0 && mx >= getFretX(24, layout) && mx <= layout.actualSaddleXArr[bestString]+2) fretNum = 25;
+        }
+        return {stringIdx: bestString, fretNum};
+    }
 
-            function hslToRgb(h, s, l) {
-                let r, g, b;
-                if (s === 0) { r = g = b = l; } else {
-                    const hue2rgb = (p, q, t) => { if (t < 0) t += 1; if (t > 1) t -= 1; if (t < 1 / 6) return p + (q -
-                            p) * 6 * t; if (t < 1 / 2) return q; if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) *
-                        6; return p; };
-                    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-                    const p = 2 * l - q;
-                    r = hue2rgb(p, q, h + 1 / 3);
-                    g = hue2rgb(p, q, h);
-                    b = hue2rgb(p, q, h - 1 / 3);
-                }
-                return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255), alpha: 0.55 + s *
-                        0.4 };
+    // --- Pitch ---
+    function getCentsDeviation(stringIdx, fretNum) {
+        const layout = getLayout();
+        const Lnom_s = layout.nominalSaddleXArr[stringIdx] - layout.nutX;
+        const Lactual_s = layout.actualSaddleXArr[stringIdx] - layout.nutX;
+        const tuningFactor = Math.pow(2, tuningCents/1200);
+
+        if (fretNum === 0) return tuningCents; // open string not affected by saddle
+
+        const fretPos = Lnom_s * (1 - 1/Math.pow(2, fretNum/12));
+        const vibratingLength = Lactual_s - fretPos;
+        const actualRatio = Lnom_s / vibratingLength;
+        const idealRatio = Math.pow(2, fretNum/12);
+        return 1200 * Math.log2((actualRatio / idealRatio) * tuningFactor);
+    }
+
+    function getNoteInfo(stringIdx, fretNum) {
+        const midiBase = stringTuningMidiBase[stringIdx];
+        const nominalMidi = midiBase + fretNum;
+        const totalCents = getCentsDeviation(stringIdx, fretNum);
+        return { nominalMidi, totalCents };
+    }
+
+    function getFrequency(stringIdx, fretNum) {
+        const midiBase = stringTuningMidiBase[stringIdx];
+        const nominalFreq = 440 * Math.pow(2, (midiBase+fretNum-69)/12);
+        const totalCents = getCentsDeviation(stringIdx, fretNum);
+        return nominalFreq * Math.pow(2, totalCents/1200);
+    }
+
+    // --- Colors ---
+    function centsToColor(cents) {
+        const absC = Math.abs(cents);
+        const clamped = Math.min(absC, 30);
+        const t = clamped/30;
+        if (absC < 3) return {r:Math.round(60+t*30), g:200, b:Math.round(60+t*20), alpha:0.5+t*0.3};
+        if (cents > 0) { const h=120-t*120; return hslToRgb(h/360, 0.6+t*0.4, 0.4+t*0.12); }
+        else { const h=120+t*120; return hslToRgb(h/360, 0.55+t*0.45, 0.38+t*0.14); }
+    }
+    function hslToRgb(h,s,l) {
+        const hue2rgb = (p,q,t) => { if(t<0)t+=1; if(t>1)t-=1; if(t<1/6)return p+(q-p)*6*t; if(t<1/2)return q; if(t<2/3)return p+(q-p)*(2/3-t)*6; return p; };
+        const q = l<0.5?l*(1+s):l+s-l*s; const p=2*l-q;
+        return {r:Math.round(hue2rgb(p,q,h+1/3)*255), g:Math.round(hue2rgb(p,q,h)*255), b:Math.round(hue2rgb(p,q,h-1/3)*255), alpha:0.55+s*0.4};
+    }
+
+    // --- Drawing ---
+    function drawFretboard(layout) {
+        const {openStartX, nutX, fbHeight, fretboardTop, fretboardBottom, nutStringSpacing, actualSaddleXArr, nominalSaddleXArr} = layout;
+        const maxSaddle = Math.max(...actualSaddleXArr);
+
+        // Wood
+        const woodGrad = ctx.createLinearGradient(0, fretboardTop, 0, fretboardBottom);
+        woodGrad.addColorStop(0,'#3d2817'); woodGrad.addColorStop(0.3,'#4a3020'); woodGrad.addColorStop(0.5,'#3e2516');
+        woodGrad.addColorStop(0.7,'#4a3020'); woodGrad.addColorStop(1,'#382215');
+        ctx.fillStyle = woodGrad;
+        ctx.fillRect(openStartX-10, fretboardTop-6, maxSaddle-openStartX+28, fretboardBottom-fretboardTop+12);
+        ctx.strokeStyle = 'rgba(0,0,0,0.05)'; ctx.lineWidth=1;
+        for (let gy=fretboardTop; gy<fretboardBottom; gy+=2.2) {
+            ctx.beginPath(); ctx.moveTo(openStartX-8, gy); ctx.lineTo(maxSaddle+18, gy + Math.sin(gy*0.35+42)*4 + Math.sin(gy*0.8+17)*2); ctx.stroke();
+        }
+        ctx.strokeStyle = '#1a0d04'; ctx.lineWidth=3.5;
+        ctx.strokeRect(openStartX-5, fretboardTop-3, maxSaddle-openStartX+20, fretboardBottom-fretboardTop+6);
+
+        // Cells
+        for (let s=0; s<NUM_STRINGS; s++) {
+            const actualSX = actualSaddleXArr[s];
+            // Open string cell
+            let color = centsToColor(getCentsDeviation(s,0));
+            let alpha = (selectedString<0||selectedString===s) ? color.alpha*0.65 : color.alpha*0.16;
+            ctx.fillStyle = `rgba(${color.r},${color.g},${color.b},${alpha})`;
+            const yTopOpen = layout.stringYAtNut(s) - nutStringSpacing*0.4;
+            const yBottomOpen = layout.stringYAtNut(s) + nutStringSpacing*0.4;
+            ctx.fillRect(openStartX+2, yTopOpen, nutX-openStartX-2, yBottomOpen-yTopOpen);
+
+            // Fretted cells 1..25 (25 is between 24th wire and saddle)
+            for (let n=1; n<=25; n++) {
+                const left = (n===1) ? nutX : getFretX(n-1, layout);
+                const right = (n===25) ? actualSX : getFretX(n, layout);
+                color = centsToColor(getCentsDeviation(s,n));
+                alpha = (selectedString<0||selectedString===s) ? color.alpha*0.65 : color.alpha*0.16;
+                ctx.fillStyle = `rgba(${color.r},${color.g},${color.b},${alpha})`;
+                const yTop = getStringYAtX(s, left, layout) - nutStringSpacing*0.4;
+                const yBottom = getStringYAtX(s, left, layout) + nutStringSpacing*0.4;
+                ctx.fillRect(left+1, yTop, Math.max(1, right-left-1), yBottom-yTop);
             }
+        }
 
-            function getHeatColor(stringIdx, fretNum) {
-                return centsToColor(getCentsDeviation(stringIdx, fretNum));
-            }
-
-            // --- Drawing ---
-            function drawFretboard(layout) {
-                const { w, h, nutX, actualSaddleX, scalePx, fretboardTop, fretboardBottom, fbHeight,
-                    nutStringSpacing } = layout;
-
-                // Wood
-                const woodGrad = ctx.createLinearGradient(0, fretboardTop, 0, fretboardBottom);
-                woodGrad.addColorStop(0, '#3d2817');
-                woodGrad.addColorStop(0.3, '#4a3020');
-                woodGrad.addColorStop(0.5, '#3e2516');
-                woodGrad.addColorStop(0.7, '#4a3020');
-                woodGrad.addColorStop(1, '#382215');
-                ctx.fillStyle = woodGrad;
-                ctx.fillRect(nutX - 10, fretboardTop - 6, actualSaddleX - nutX + 28, fretboardBottom - fretboardTop +
-                12);
-
-                // Grain
-                ctx.strokeStyle = 'rgba(0,0,0,0.05)';
-                ctx.lineWidth = 1;
-                for (let gy = fretboardTop; gy < fretboardBottom; gy += 2.2) {
-                    ctx.beginPath();
-                    ctx.moveTo(nutX - 8, gy);
-                    ctx.lineTo(actualSaddleX + 18, gy + (Math.sin(gy * 0.35 + 42) * 4 + Math.sin(gy * 0.8 + 17) * 2));
-                    ctx.stroke();
-                }
-
-                // Edge
-                ctx.strokeStyle = '#1a0d04';
-                ctx.lineWidth = 3.5;
-                ctx.strokeRect(nutX - 5, fretboardTop - 3, actualSaddleX - nutX + 20, fretboardBottom - fretboardTop +
-                6);
-
-                // Heatmap
-                for (let s = 0; s < NUM_STRINGS; s++) {
-                    for (let f = 0; f < NUM_FRETS; f++) {
-                        const fx = getFretX(f, layout);
-                        const fxNext = f < NUM_FRETS - 1 ? getFretX(f + 1, layout) : actualSaddleX;
-                        const yTop = getStringYAtX(s, fx, layout) - nutStringSpacing * 0.4;
-                        const yBottom = getStringYAtX(s, fx, layout) + nutStringSpacing * 0.4;
-                        const color = getHeatColor(s, f);
-                        const alpha = (selectedString < 0 || selectedString === s) ? color.alpha * 0.65 : color
-                            .alpha * 0.16;
-                        ctx.fillStyle = `rgba(${color.r},${color.g},${color.b},${alpha})`;
-                        ctx.fillRect(fx + 1, yTop, Math.max(1, fxNext - fx - 1), yBottom - yTop);
-                    }
-                }
-
-                // Frets
-                for (let f = 0; f < NUM_FRETS; f++) {
-                    const fx = getFretX(f, layout);
-                    const isWide = (f >= 20);
-                    const fretW = isWide ? 1.8 : 2.2;
-                    ctx.fillStyle = 'rgba(0,0,0,0.45)';
-                    ctx.fillRect(fx - 1.2, fretboardTop - 3, fretW + 0.8, fretboardBottom - fretboardTop + 6);
-                    const fretGrad = ctx.createLinearGradient(fx - 0.8, 0, fx + fretW - 0.5, 0);
-                    fretGrad.addColorStop(0, '#999');
-                    fretGrad.addColorStop(0.35, '#e0e0e0');
-                    fretGrad.addColorStop(0.5, '#f5f5f5');
-                    fretGrad.addColorStop(0.65, '#e0e0e0');
-                    fretGrad.addColorStop(1, '#888');
-                    ctx.fillStyle = fretGrad;
-                    ctx.fillRect(fx - 0.8, fretboardTop - 2.5, fretW, fretboardBottom - fretboardTop + 5);
-
-                    // Fret numbers only on inlay positions
-                    if (fretNumberFrets.has(f)) {
-                        ctx.fillStyle = 'rgba(255,255,255,0.6)';
-                        ctx.font = `bold ${Math.max(7, fbHeight*0.058)}px 'Segoe UI', sans-serif`;
-                        ctx.textAlign = 'center';
-                        const fy = fretboardBottom + fbHeight * 0.075;
-                        ctx.fillText(f, fx, fy);
-                    }
-                }
-
-                // Fret markers (inlays)
-                for (const df of dotFrets) {
-                    if (df >= NUM_FRETS) continue;
-                    const fx = getFretX(df, layout);
-                    const fxPrev = df > 0 ? getFretX(df - 1, layout) : nutX;
-                    const cx = (fxPrev + fx) / 2;
-                    const cy = (fretboardTop + fretboardBottom) / 2;
-                    const dotR = fbHeight * 0.022;
-                    if (doubleDotFrets.includes(df)) {
-                        const off = nutStringSpacing * 0.75;
-                        ctx.fillStyle = 'rgba(240,220,200,0.7)';
-                        ctx.beginPath();
-                        ctx.arc(cx, cy - off, dotR, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.beginPath();
-                        ctx.arc(cx, cy + off, dotR, 0, Math.PI * 2);
-                        ctx.fill();
-                    } else {
-                        ctx.fillStyle = 'rgba(240,220,200,0.65)';
-                        ctx.beginPath();
-                        ctx.arc(cx, cy, dotR, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-                }
-
-                // Nut
-                const nutGrad = ctx.createLinearGradient(nutX - 2.5, 0, nutX + 2.5, 0);
-                nutGrad.addColorStop(0, '#ccc');
-                nutGrad.addColorStop(0.4, '#fafafa');
-                nutGrad.addColorStop(0.6, '#fafafa');
-                nutGrad.addColorStop(1, '#bbb');
-                ctx.fillStyle = nutGrad;
-                ctx.fillRect(nutX - 2.5, fretboardTop - 5, 5, fretboardBottom - fretboardTop + 10);
-                ctx.strokeStyle = 'rgba(0,0,0,0.35)';
-                ctx.lineWidth = 1;
-                ctx.strokeRect(nutX - 2.5, fretboardTop - 5, 5, fretboardBottom - fretboardTop + 10);
-
-                // Strings
-                for (let s = 0; s < NUM_STRINGS; s++) {
-                    const yNut = layout.stringYAtNut(s);
-                    const ySaddle = layout.stringYAtSaddle(s);
-                    const thickness = stringGauges[s] * (fbHeight / 270);
-                    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
-                    ctx.lineWidth = thickness + 1;
-                    ctx.beginPath();
-                    ctx.moveTo(nutX, yNut + 1);
-                    ctx.lineTo(actualSaddleX, ySaddle + 1);
-                    ctx.stroke();
-                    const brightness = 0.6 + s * 0.06;
-                    const sg = ctx.createLinearGradient(nutX, 0, actualSaddleX, 0);
-                    sg.addColorStop(0,
-                        `rgba(${Math.round(200*brightness)},${Math.round(190*brightness)},${Math.round(170*brightness)},0.9)`);
-                    sg.addColorStop(1,
-                        `rgba(${Math.round(210*brightness)},${Math.round(200*brightness)},${Math.round(180*brightness)},0.9)`);
-                    ctx.strokeStyle = sg;
-                    ctx.lineWidth = thickness;
-                    ctx.beginPath();
-                    ctx.moveTo(nutX, yNut);
-                    ctx.lineTo(actualSaddleX, ySaddle);
-                    ctx.stroke();
-                    ctx.strokeStyle = 'rgba(255,255,255,0.13)';
-                    ctx.lineWidth = thickness * 0.3;
-                    ctx.beginPath();
-                    ctx.moveTo(nutX, yNut - thickness * 0.2);
-                    ctx.lineTo(actualSaddleX, ySaddle - thickness * 0.2);
-                    ctx.stroke();
-                }
-
-                // Vibrating animations
-                const now = performance.now() / 1000;
-                for (let v = activeVibrations.length - 1; v >= 0; v--) {
-                    const vib = activeVibrations[v];
-                    const elapsed = now - vib.startTime;
-                    const amp = vib.amplitude * Math.exp(-elapsed / vib.decayRate);
-                    if (amp < 0.14) { activeVibrations.splice(v, 1); continue; }
-                    const s = vib.stringIdx;
-                    const f = vib.fretNum;
-                    const fxFret = f > 0 ? getFretX(f, layout) : nutX;
-                    const xStart = fxFret;
-                    const xEnd = actualSaddleX;
-                    const segLen = xEnd - xStart;
-                    const wavelength = segLen / 2;
-                    const k = (2 * Math.PI) / wavelength;
-                    const omega = 2 * Math.PI * vib.freq;
-                    const thickness = stringGauges[s] * (fbHeight / 270);
-                    ctx.strokeStyle = `rgba(255,220,180,${0.22 + amp * 0.5})`;
-                    ctx.lineWidth = thickness * (1 + amp * 2);
-                    ctx.beginPath();
-                    const steps = Math.min(100, Math.max(30, Math.floor(segLen / 3)));
-                    for (let i = 0; i <= steps; i++) {
-                        const t = i / steps;
-                        const x = xStart + t * segLen;
-                        const yBase = getStringYAtX(s, x, layout);
-                        const displacement = amp * Math.sin(k * (x - xStart)) * Math.sin(omega * elapsed + vib.phase) *
-                            7;
-                        const y = yBase + displacement;
-                        if (i === 0) ctx.moveTo(x, y);
-                        else ctx.lineTo(x, y);
-                    }
-                    ctx.stroke();
-                }
-
-                // Saddle
-                const saddleX = actualSaddleX;
-                const saddleW = fbHeight * 0.038;
-                const saddleGrad = ctx.createLinearGradient(saddleX - saddleW / 2, 0, saddleX + saddleW / 2, 0);
-                saddleGrad.addColorStop(0, '#777');
-                saddleGrad.addColorStop(0.3, '#ddd');
-                saddleGrad.addColorStop(0.5, '#f5f5f5');
-                saddleGrad.addColorStop(0.7, '#ddd');
-                saddleGrad.addColorStop(1, '#666');
-                ctx.fillStyle = saddleGrad;
-                ctx.fillRect(saddleX - saddleW / 2, fretboardTop - 7, saddleW, fretboardBottom - fretboardTop + 14);
-                ctx.strokeStyle = 'rgba(0,0,0,0.45)';
-                ctx.lineWidth = 1.3;
-                ctx.strokeRect(saddleX - saddleW / 2, fretboardTop - 7, saddleW, fretboardBottom - fretboardTop + 14);
-                ctx.fillStyle = 'rgba(255,255,255,0.65)';
-                ctx.font = `${Math.max(8,fbHeight*0.05)}px 'Segoe UI', sans-serif`;
+        // Frets — only draw wires 0..24 (no 25th wire)
+        for (let f=0; f<=24; f++) {
+            const fx = (f===0) ? nutX : getFretX(f, layout);
+            const fretW = (f>=20) ? 1.8 : 2.2;
+            ctx.fillStyle = 'rgba(0,0,0,0.45)';
+            ctx.fillRect(fx-1.2, fretboardTop-3, fretW+0.8, fretboardBottom-fretboardTop+6);
+            const grad = ctx.createLinearGradient(fx-0.8,0,fx+fretW-0.5,0);
+            grad.addColorStop(0,'#999'); grad.addColorStop(0.35,'#e0e0e0'); grad.addColorStop(0.5,'#f5f5f5'); grad.addColorStop(0.65,'#e0e0e0'); grad.addColorStop(1,'#888');
+            ctx.fillStyle = grad;
+            ctx.fillRect(fx-0.8, fretboardTop-2.5, fretW, fretboardBottom-fretboardTop+5);
+            if (f>0 && fretNumberFrets.has(f)) {
+                ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                ctx.font = `bold ${Math.max(7, fbHeight*0.058)}px 'Segoe UI', sans-serif`;
                 ctx.textAlign = 'center';
-                ctx.fillText('Saddle', saddleX, fretboardTop - fbHeight * 0.05);
-
-                // Nominal saddle dashed
-                if (Math.abs(intonationSliderVal) > 0.3) {
-                    const nsx = layout.nominalSaddleX;
-                    ctx.setLineDash([3, 5]);
-                    ctx.strokeStyle = 'rgba(255,200,100,0.45)';
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.moveTo(nsx, fretboardTop - 8);
-                    ctx.lineTo(nsx, fretboardBottom + 8);
-                    ctx.stroke();
-                    ctx.setLineDash([]);
-                    ctx.fillStyle = 'rgba(255,200,100,0.7)';
-                    ctx.font = `${Math.max(7,fbHeight*0.04)}px 'Segoe UI', sans-serif`;
-                    ctx.textAlign = 'center';
-                    ctx.fillText('nominal', nsx, fretboardBottom + fbHeight * 0.04);
-                }
-
-                // String labels at nut
-                for (let s = 0; s < NUM_STRINGS; s++) {
-                    const yNut = layout.stringYAtNut(s);
-                    const ni = getNoteInfo(s, 0);
-                    const nn = midiToNoteName(Math.round(ni.nominalMidi + ni.totalCents / 100));
-                    ctx.fillStyle = 'rgba(255,255,255,0.8)';
-                    ctx.font = `bold ${Math.max(8,fbHeight*0.05)}px 'Segoe UI', sans-serif`;
-                    ctx.textAlign = 'right';
-                    ctx.fillText(nn, nutX - 8, yNut + fbHeight * 0.016);
-                }
-
-                // Highlight hovered
-                if (hoveredString >= 0 && hoveredFret >= 0 && hoveredString < NUM_STRINGS) {
-                    const fx = getFretX(hoveredFret, layout);
-                    const fxNext = hoveredFret < NUM_FRETS - 1 ? getFretX(hoveredFret + 1, layout) : actualSaddleX;
-                    const yStr = getStringYAtX(hoveredString, (fx + fxNext) / 2, layout);
-                    const rad = nutStringSpacing * 0.36;
-                    const glowGrad = ctx.createRadialGradient((fx + fxNext) / 2, yStr, rad * 0.4, (fx + fxNext) / 2,
-                        yStr, rad * 1.7);
-                    glowGrad.addColorStop(0, 'rgba(255,255,200,0.75)');
-                    glowGrad.addColorStop(0.5, 'rgba(255,200,100,0.35)');
-                    glowGrad.addColorStop(1, 'rgba(255,150,50,0)');
-                    ctx.fillStyle = glowGrad;
-                    ctx.beginPath();
-                    ctx.arc((fx + fxNext) / 2, yStr, rad * 1.7, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
-                    ctx.lineWidth = 2.2;
-                    ctx.beginPath();
-                    ctx.arc((fx + fxNext) / 2, yStr, rad, 0, Math.PI * 2);
-                    ctx.stroke();
-                }
+                ctx.fillText(f, fx, fretboardBottom+fbHeight*0.075);
             }
+        }
 
-            function drawGraph(layout) {
-                const { w, graphTop, graphBottom, nutX, nominalSaddleX, scalePx } = layout;
-                const gLeft = nutX;
-                const gRight = nominalSaddleX;
-                const gHeight = graphBottom - graphTop;
-                const gMid = (graphTop + graphBottom) / 2;
-
-                ctx.fillStyle = 'rgba(18,18,26,0.85)';
-                ctx.fillRect(gLeft - 8, graphTop - 5, gRight - gLeft + 16, gHeight + 10);
-                ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-                ctx.lineWidth = 1;
-                ctx.strokeRect(gLeft - 8, graphTop - 5, gRight - gLeft + 16, gHeight + 10);
-
-                ctx.fillStyle = 'rgba(255,255,255,0.55)';
-                ctx.font = `${Math.max(7,gHeight*0.2)}px 'Segoe UI', sans-serif`;
-                ctx.textAlign = 'left';
-                ctx.fillText('Cents Deviation', gLeft, graphTop - 2);
-
-                // Zero line
-                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-                ctx.lineWidth = 1;
-                ctx.setLineDash([3, 5]);
-                ctx.beginPath();
-                ctx.moveTo(gLeft, gMid);
-                ctx.lineTo(gRight, gMid);
-                ctx.stroke();
-                ctx.setLineDash([]);
-
-                // Grid lines
-                for (const c of [-20, -10, 10, 20]) {
-                    const y = gMid - (c / 60) * gHeight;
-                    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-                    ctx.lineWidth = 0.5;
-                    ctx.setLineDash([2, 5]);
-                    ctx.beginPath();
-                    ctx.moveTo(gLeft, y);
-                    ctx.lineTo(gRight, y);
-                    ctx.stroke();
-                    ctx.setLineDash([]);
-                    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-                    ctx.font = `${Math.max(6,gHeight*0.15)}px 'Segoe UI', sans-serif`;
-                    ctx.textAlign = 'right';
-                    ctx.fillText(`${c}¢`, gLeft - 5, y + gHeight * 0.05);
-                }
-                ctx.fillText('0¢', gLeft - 5, gMid + gHeight * 0.05);
-
-                // Plot strings
-                const stringColors = ['#e8c0a0', '#d0b090', '#c0a080', '#b09070', '#a08060', '#907050'];
-                for (let s = 0; s < NUM_STRINGS; s++) {
-                    const alpha = (selectedString < 0 || selectedString === s) ? 1 : 0.18;
-                    const lw = (selectedString < 0 || selectedString === s) ? 1.8 : 0.5;
-                    const r = parseInt(stringColors[s].slice(1, 3), 16);
-                    const g = parseInt(stringColors[s].slice(3, 5), 16);
-                    const b = parseInt(stringColors[s].slice(5, 7), 16);
-                    ctx.strokeStyle = `rgba(${r},${g},${b},${alpha})`;
-                    ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
-                    ctx.lineWidth = lw;
-                    ctx.beginPath();
-                    let first = true;
-                    for (let f = 0; f < NUM_FRETS; f++) {
-                        const fx = getFretX(f, layout);
-                        const cents = getCentsDeviation(s, f);
-                        const y = gMid - (cents / 60) * gHeight;
-                        const cy = Math.max(graphTop, Math.min(graphBottom, y));
-                        if (first) { ctx.moveTo(fx, cy);
-                            first = false; } else ctx.lineTo(fx, cy);
-                    }
-                    ctx.stroke();
-                    for (let f = 0; f < NUM_FRETS; f++) {
-                        const fx = getFretX(f, layout);
-                        const cents = getCentsDeviation(s, f);
-                        const y = gMid - (cents / 60) * gHeight;
-                        const cy = Math.max(graphTop, Math.min(graphBottom, y));
-                        ctx.beginPath();
-                        ctx.arc(fx, cy, lw * 1.1, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-                }
-
-                // X-axis fret labels (only on inlay frets)
-                const graphLabelFrets = [0, 3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
-                for (const f of graphLabelFrets) {
-                    if (f >= NUM_FRETS) continue;
-                    const fx = getFretX(f, layout);
-                    ctx.fillStyle = 'rgba(255,255,255,0.45)';
-                    ctx.font = `${Math.max(6,gHeight*0.15)}px 'Segoe UI', sans-serif`;
-                    ctx.textAlign = 'center';
-                    ctx.fillText(f, fx, graphBottom + gHeight * 0.13);
-                }
+        // Inlays
+        for (const df of dotFrets) {
+            const fx = getFretX(df, layout);
+            const fxPrev = df>0 ? getFretX(df-1, layout) : nutX;
+            const cx = (fxPrev+fx)/2;
+            const cy = (fretboardTop+fretboardBottom)/2;
+            const dotR = fbHeight*0.022;
+            if (doubleDotFrets.includes(df)) {
+                const off = nutStringSpacing*0.75;
+                ctx.fillStyle = 'rgba(240,220,200,0.7)';
+                ctx.beginPath(); ctx.arc(cx, cy-off, dotR, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(cx, cy+off, dotR, 0, Math.PI*2); ctx.fill();
+            } else {
+                ctx.fillStyle = 'rgba(240,220,200,0.65)';
+                ctx.beginPath(); ctx.arc(cx, cy, dotR, 0, Math.PI*2); ctx.fill();
             }
+        }
 
-            function drawAll() {
-                const layout = getLayout();
-                ctx.clearRect(0, 0, layout.w, layout.h);
-                drawFretboard(layout);
-                drawGraph(layout);
+        // Nut
+        const nutGrad = ctx.createLinearGradient(nutX-2.5,0,nutX+2.5,0);
+        nutGrad.addColorStop(0,'#ccc'); nutGrad.addColorStop(0.4,'#fafafa'); nutGrad.addColorStop(0.6,'#fafafa'); nutGrad.addColorStop(1,'#bbb');
+        ctx.fillStyle = nutGrad;
+        ctx.fillRect(nutX-2.5, fretboardTop-5, 5, fretboardBottom-fretboardTop+10);
+        ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth=1; ctx.strokeRect(nutX-2.5, fretboardTop-5, 5, fretboardBottom-fretboardTop+10);
+
+        // Strings
+        for (let s=0; s<NUM_STRINGS; s++) {
+            const yNut = layout.stringYAtNut(s), ySaddle = layout.stringYAtSaddle(s);
+            const actualSX = actualSaddleXArr[s];
+            const thick = stringGauges[s]*(fbHeight/270);
+            ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = thick+1;
+            ctx.beginPath(); ctx.moveTo(openStartX, yNut+1); ctx.lineTo(actualSX, ySaddle+1); ctx.stroke();
+            const brightness = 0.6 + s*0.06;
+            const sg = ctx.createLinearGradient(openStartX,0,actualSX,0);
+            sg.addColorStop(0,`rgba(${Math.round(200*brightness)},${Math.round(190*brightness)},${Math.round(170*brightness)},0.9)`);
+            sg.addColorStop(1,`rgba(${Math.round(210*brightness)},${Math.round(200*brightness)},${Math.round(180*brightness)},0.9)`);
+            ctx.strokeStyle = sg; ctx.lineWidth = thick;
+            ctx.beginPath(); ctx.moveTo(openStartX, yNut); ctx.lineTo(actualSX, ySaddle); ctx.stroke();
+            ctx.strokeStyle = 'rgba(255,255,255,0.13)'; ctx.lineWidth = thick*0.3;
+            ctx.beginPath(); ctx.moveTo(openStartX, yNut-thick*0.2); ctx.lineTo(actualSX, ySaddle-thick*0.2); ctx.stroke();
+        }
+
+        // Saddles
+        const saddleW = fbHeight*0.03;
+        for (let s=0; s<NUM_STRINGS; s++) {
+            const actualSX = actualSaddleXArr[s];
+            const ySaddle = layout.stringYAtSaddle(s);
+            const yTop = ySaddle - fbHeight*0.08, yBottom = ySaddle + fbHeight*0.08;
+            const grad = ctx.createLinearGradient(actualSX-saddleW/2,0,actualSX+saddleW/2,0);
+            grad.addColorStop(0,'#777'); grad.addColorStop(0.3,'#ddd'); grad.addColorStop(0.5,'#f5f5f5'); grad.addColorStop(0.7,'#ddd'); grad.addColorStop(1,'#666');
+            ctx.fillStyle = grad;
+            ctx.fillRect(actualSX-saddleW/2, yTop, saddleW, yBottom-yTop);
+            ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth=1; ctx.strokeRect(actualSX-saddleW/2, yTop, saddleW, yBottom-yTop);
+        }
+
+        // Nominal dashed
+        for (let s=0; s<NUM_STRINGS; s++) {
+            if (Math.abs(intonationOffsets[s]) < 0.2) continue;
+            const nominalX = nominalSaddleXArr[s];
+            const yTop = layout.stringYAtSaddle(s) - fbHeight*0.1, yBottom = layout.stringYAtSaddle(s) + fbHeight*0.1;
+            ctx.setLineDash([2,4]);
+            ctx.strokeStyle = 'rgba(255,200,100,0.5)'; ctx.lineWidth=1;
+            ctx.beginPath(); ctx.moveTo(nominalX, yTop); ctx.lineTo(nominalX, yBottom); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // Vibrating strings — from fret wire to saddle
+        const now = performance.now()/1000;
+        for (let v=activeVibrations.length-1; v>=0; v--) {
+            const vib = activeVibrations[v];
+            const elapsed = now - vib.startTime;
+            const amp = vib.amplitude * Math.exp(-elapsed/vib.decayRate);
+            if (amp < 0.14) { activeVibrations.splice(v,1); continue; }
+            const s = vib.stringIdx, f = vib.fretNum;
+            const actualSX = actualSaddleXArr[s];
+            const xStart = (f===0) ? nutX : getFretX(f, layout);   // at the fret wire
+            const xEnd = actualSX;
+            const segLen = xEnd - xStart;
+            const wavelength = segLen/2, k = 2*Math.PI/wavelength, omega = 2*Math.PI*vib.freq;
+            const thick = stringGauges[s]*(fbHeight/270);
+            ctx.strokeStyle = `rgba(255,220,180,${0.22+amp*0.5})`; ctx.lineWidth = thick*(1+amp*2);
+            ctx.beginPath();
+            const steps = Math.min(100, Math.max(30, Math.floor(segLen/3)));
+            for (let i=0; i<=steps; i++) {
+                const t = i/steps, x = xStart + t*segLen;
+                const yBase = getStringYAtX(s, x, layout);
+                const displacement = amp * Math.sin(k*(x-xStart)) * Math.sin(omega*elapsed+vib.phase)*7;
+                if (i===0) ctx.moveTo(x, yBase+displacement);
+                else ctx.lineTo(x, yBase+displacement);
             }
+            ctx.stroke();
+        }
 
-            // --- Event Handling ---
-            function getCanvasPos(e) {
-                const rect = canvas.getBoundingClientRect();
-                return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        // Open string labels
+        for (let s=0; s<NUM_STRINGS; s++) {
+            const yNut = layout.stringYAtNut(s);
+            const ni = getNoteInfo(s,0);
+            const nn = midiToNoteName(Math.round(ni.nominalMidi + ni.totalCents/100));
+            ctx.fillStyle = 'rgba(255,255,255,0.85)';
+            ctx.font = `bold ${Math.max(8,fbHeight*0.05)}px 'Segoe UI', sans-serif`;
+            ctx.textAlign = 'right';
+            ctx.fillText(nn, openStartX - 10, yNut+fbHeight*0.016);
+        }
+
+        // Hover highlight
+        if (hoveredString>=0 && hoveredFret>=0 && hoveredString<NUM_STRINGS) {
+            let cellLeft, cellRight;
+            if (hoveredFret === 0) { cellLeft = openStartX; cellRight = nutX; }
+            else {
+                cellLeft = (hoveredFret===1) ? nutX : getFretX(hoveredFret-1, layout);
+                cellRight = (hoveredFret===25) ? actualSaddleXArr[hoveredString] : getFretX(hoveredFret, layout);
             }
+            const yStr = getStringYAtX(hoveredString, (cellLeft+cellRight)/2, layout);
+            const rad = nutStringSpacing*0.36;
+            const glow = ctx.createRadialGradient((cellLeft+cellRight)/2, yStr, rad*0.4, (cellLeft+cellRight)/2, yStr, rad*1.7);
+            glow.addColorStop(0,'rgba(255,255,200,0.75)'); glow.addColorStop(0.5,'rgba(255,200,100,0.35)'); glow.addColorStop(1,'rgba(255,150,50,0)');
+            ctx.fillStyle = glow; ctx.beginPath(); ctx.arc((cellLeft+cellRight)/2, yStr, rad*1.7,0,Math.PI*2); ctx.fill();
+            ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth=2.2; ctx.beginPath(); ctx.arc((cellLeft+cellRight)/2, yStr, rad,0,Math.PI*2); ctx.stroke();
+        }
+    }
 
-            function updateHover(e) {
-                const pos = getCanvasPos(e);
-                const layout = getLayout();
-                const result = getStringAndFret(pos.x, pos.y, layout);
-                if (result.stringIdx !== hoveredString || result.fretNum !== hoveredFret) {
-                    hoveredString = result.stringIdx;
-                    hoveredFret = result.fretNum;
-                    updateInfoPanel();
-                    drawAll();
-                }
+    function drawGraph(layout) {
+        const {graphTop, graphBottom, nutX, actualSaddleXArr} = layout;
+        const gLeft = nutX - 4;       // start at nut, keep title visible
+        const gRight = actualSaddleXArr[0] + 15;
+        const gHeight = graphBottom - graphTop;
+        const gMid = (graphTop+graphBottom)/2;
+
+        ctx.fillStyle = 'rgba(18,18,26,0.85)'; ctx.fillRect(gLeft-8, graphTop-5, gRight-gLeft+16, gHeight+10);
+        ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth=1; ctx.strokeRect(gLeft-8, graphTop-5, gRight-gLeft+16, gHeight+10);
+
+        // Title — placed at gLeft so it's visible
+        ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = `${Math.max(7,gHeight*0.2)}px 'Segoe UI', sans-serif`;
+        ctx.textAlign = 'left';
+        ctx.fillText('Cents Deviation', gLeft + 2, graphTop - 2);
+
+        // Zero line
+        ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth=1; ctx.setLineDash([3,5]);
+        ctx.beginPath(); ctx.moveTo(gLeft, gMid); ctx.lineTo(gRight, gMid); ctx.stroke(); ctx.setLineDash([]);
+
+        // Grid
+        for (const c of [-20,-10,10,20]) {
+            const y = gMid - (c/60)*gHeight;
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth=0.5; ctx.setLineDash([2,5]);
+            ctx.beginPath(); ctx.moveTo(gLeft, y); ctx.lineTo(gRight, y); ctx.stroke(); ctx.setLineDash([]);
+            ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = `${Math.max(6,gHeight*0.15)}px 'Segoe UI', sans-serif`;
+            ctx.textAlign = 'right'; ctx.fillText(`${c}¢`, gLeft-2, y+gHeight*0.05);
+        }
+        ctx.fillText('0¢', gLeft-2, gMid+gHeight*0.05);
+
+        // String plots — points at fret wire positions
+        const stringColors = ['#e8c0a0','#d0b090','#c0a080','#b09070','#a08060','#907050'];
+        for (let s=0; s<NUM_STRINGS; s++) {
+            const show = (selectedString<0 || selectedString===s);
+            const [r,g,b] = [parseInt(stringColors[s].slice(1,3),16), parseInt(stringColors[s].slice(3,5),16), parseInt(stringColors[s].slice(5,7),16)];
+            ctx.strokeStyle = `rgba(${r},${g},${b},${show?1:0.15})`; ctx.fillStyle = `rgba(${r},${g},${b},${show?1:0.15})`;
+            ctx.lineWidth = show ? 1.8 : 0.5;
+
+            // Plot points: open string at nutX, then each fret at its wire position
+            const points = [];
+            points.push({x: nutX, cents: getCentsDeviation(s,0)}); // open at nut
+            for (let f=1; f<=24; f++) {
+                points.push({x: getFretX(f, layout), cents: getCentsDeviation(s,f)});
             }
+            // Add the area beyond 24th fret
+            points.push({x: actualSaddleXArr[s], cents: getCentsDeviation(s,25)});
 
-            function updateInfoPanel() {
-                if (hoveredString >= 0 && hoveredFret >= 0) {
-                    const ni = getNoteInfo(hoveredString, hoveredFret);
-                    const nn = midiToNoteName(Math.round(ni.nominalMidi + ni.totalCents / 100));
-                    const absC = Math.abs(ni.totalCents);
-                    let cls = 'cents-good';
-                    if (absC > 10) cls = ni.totalCents > 0 ? 'cents-sharp' : 'cents-flat';
-                    else if (absC > 3) cls = ni.totalCents > 0 ? 'cents-sharp' : 'cents-flat';
-                    noteDisplay.textContent = nn;
-                    const sign = ni.totalCents >= 0 ? '+' : '';
-                    centsDisplay.innerHTML = `<span class="${cls}">${sign}${ni.totalCents.toFixed(1)} cents</span>`;
-                    const freq = getFrequency(hoveredString, hoveredFret);
-                    const idealFreq = 440 * Math.pow(2, (ni.nominalMidi - 69) / 12);
-                    detailDisplay.textContent =
-                        `Str ${NUM_STRINGS-hoveredString} · Fret ${hoveredFret} · ${freq.toFixed(2)} Hz (ideal ${idealFreq.toFixed(2)}) · ${stringNames[hoveredString]}`;
-                } else if (hoveredString >= 0) {
-                    noteDisplay.textContent = '—';
-                    centsDisplay.textContent = 'Move over a fret';
-                    detailDisplay.textContent = `String ${NUM_STRINGS-hoveredString} · hover over fret positions`;
-                } else {
-                    noteDisplay.textContent = '—';
-                    centsDisplay.textContent = 'Hover or click the fretboard';
-                    detailDisplay.textContent = '';
-                }
+            ctx.beginPath();
+            let first = true;
+            for (const pt of points) {
+                const y = Math.max(graphTop, Math.min(graphBottom, gMid - (pt.cents/60)*gHeight));
+                if (first) { ctx.moveTo(pt.x, y); first=false; } else ctx.lineTo(pt.x, y);
             }
+            ctx.stroke();
 
-            canvas.addEventListener('mousemove', updateHover);
-            canvas.addEventListener('mouseleave', () => {
-                hoveredString = -1;
-                hoveredFret = -1;
-                updateInfoPanel();
-                drawAll();
-            });
-
-            canvas.addEventListener('click', (e) => {
-                const pos = getCanvasPos(e);
-                const layout = getLayout();
-                const result = getStringAndFret(pos.x, pos.y, layout);
-                if (result.stringIdx >= 0 && result.fretNum >= 0) {
-                    const freq = getFrequency(result.stringIdx, result.fretNum);
-                    playNote(freq, 0.6);
-                    const ev = activeVibrations.findIndex(v => v.stringIdx === result.stringIdx && v.fretNum ===
-                        result.fretNum);
-                    if (ev >= 0) {
-                        activeVibrations[ev].amplitude = Math.min(1, activeVibrations[ev].amplitude + 0.4);
-                        activeVibrations[ev].startTime = performance.now() / 1000;
-                        activeVibrations[ev].phase = Math.random() * Math.PI * 2;
-                    } else {
-                        activeVibrations.push({
-                            stringIdx: result.stringIdx,
-                            fretNum: result.fretNum,
-                            amplitude: 0.7,
-                            decayRate: 0.5,
-                            freq: freq,
-                            startTime: performance.now() / 1000,
-                            phase: Math.random() * Math.PI * 2,
-                        });
-                    }
-                    hoveredString = result.stringIdx;
-                    hoveredFret = result.fretNum;
-                    updateInfoPanel();
-                    drawAll();
-                }
-            });
-
-            // Touch
-            canvas.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                updateHover({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
-            }, { passive: false });
-            canvas.addEventListener('touchend', () => {
-                hoveredString = -1;
-                hoveredFret = -1;
-                updateInfoPanel();
-                drawAll();
-            });
-            canvas.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                const t = e.touches[0];
-                const pos = { x: t.clientX - canvas.getBoundingClientRect().left, y: t.clientY - canvas
-                        .getBoundingClientRect().top };
-                const layout = getLayout();
-                const result = getStringAndFret(pos.x, pos.y, layout);
-                if (result.stringIdx >= 0 && result.fretNum >= 0) {
-                    const freq = getFrequency(result.stringIdx, result.fretNum);
-                    playNote(freq, 0.55);
-                    activeVibrations.push({
-                        stringIdx: result.stringIdx,
-                        fretNum: result.fretNum,
-                        amplitude: 0.7,
-                        decayRate: 0.5,
-                        freq: freq,
-                        startTime: performance.now() / 1000,
-                        phase: Math.random() * Math.PI * 2,
-                    });
-                    hoveredString = result.stringIdx;
-                    hoveredFret = result.fretNum;
-                    updateInfoPanel();
-                    drawAll();
-                }
-            }, { passive: false });
-
-            // --- Controls ---
-            tuningSlider.addEventListener('input', () => {
-                tuningCents = parseInt(tuningSlider.value);
-                tuningValEl.textContent = `${tuningCents>0?'+':''}${tuningCents} ¢`;
-                updateInfoPanel();
-                drawAll();
-            });
-
-            intonationSlider.addEventListener('input', () => {
-                intonationSliderVal = parseFloat(intonationSlider.value);
-                const mm = intonationSliderVal * 0.16;
-                intonationValEl.textContent = `${mm>0?'+':''}${mm.toFixed(1)} mm`;
-                updateInfoPanel();
-                drawAll();
-            });
-
-            zoomSlider.addEventListener('input', () => {
-                widthScale = parseFloat(zoomSlider.value);
-                zoomValEl.textContent = `${widthScale.toFixed(1)}×`;
-                resizeCanvas();
-                updateInfoPanel();
-                drawAll();
-                const layout = getLayout();
-                const wrapW = wrap.clientWidth;
-                if (layout.w > wrapW + 20) {
-                    scrollHint.style.opacity = '1';
-                    clearTimeout(scrollHint._timeout);
-                    scrollHint._timeout = setTimeout(() => { scrollHint.style.opacity = '0'; }, 4000);
-                } else {
-                    scrollHint.style.opacity = '0';
-                }
-            });
-
-            resetBtn.addEventListener('click', () => {
-                tuningCents = 0;
-                intonationSliderVal = 0;
-                widthScale = 1.0;
-                tuningSlider.value = 0;
-                intonationSlider.value = 0;
-                zoomSlider.value = 1.0;
-                tuningValEl.textContent = '0 ¢';
-                intonationValEl.textContent = '0.0 mm';
-                zoomValEl.textContent = '1.0×';
-                selectedString = -1;
-                stringSelectBtn.textContent = '📍 All Strings';
-                stringSelectBtn.classList.add('active-btn');
-                activeVibrations = [];
-                resizeCanvas();
-                updateInfoPanel();
-                drawAll();
-                wrap.scrollLeft = 0;
-                scrollHint.style.opacity = '0';
-            });
-
-            presetBadBtn.addEventListener('click', () => {
-                intonationSliderVal = 18;
-                intonationSlider.value = 18;
-                intonationValEl.textContent = `${(18*0.16).toFixed(1)} mm`;
-                updateInfoPanel();
-                drawAll();
-            });
-            presetDetuneBtn.addEventListener('click', () => {
-                tuningCents = -25;
-                tuningSlider.value = -25;
-                tuningValEl.textContent = '-25 ¢';
-                updateInfoPanel();
-                drawAll();
-            });
-            presetBothBtn.addEventListener('click', () => {
-                tuningCents = 20;
-                intonationSliderVal = -15;
-                tuningSlider.value = 20;
-                intonationSlider.value = -15;
-                tuningValEl.textContent = '+20 ¢';
-                intonationValEl.textContent = `${(-15*0.16).toFixed(1)} mm`;
-                updateInfoPanel();
-                drawAll();
-            });
-
-            stringSelectBtn.addEventListener('click', () => {
-                if (selectedString < 0) selectedString = 0;
-                else if (selectedString < NUM_STRINGS - 1) selectedString++;
-                else selectedString = -1;
-                if (selectedString < 0) {
-                    stringSelectBtn.textContent = '📍 All Strings';
-                } else {
-                    stringSelectBtn.textContent =
-                        `📍 String ${NUM_STRINGS-selectedString} (${stringNames[selectedString]})`;
-                }
-                stringSelectBtn.classList.toggle('active-btn', true);
-                drawAll();
-            });
-
-            // Scroll hint fade
-            wrap.addEventListener('scroll', () => {
-                scrollHint.style.opacity = '0';
-                clearTimeout(scrollHint._timeout);
-            });
-            wrap.addEventListener('mouseenter', () => {
-                const layout = getLayout();
-                if (layout.w > wrap.clientWidth + 30) {
-                    scrollHint.style.opacity = '1';
-                    clearTimeout(scrollHint._timeout);
-                    scrollHint._timeout = setTimeout(() => { scrollHint.style.opacity = '0'; }, 3500);
-                }
-            });
-
-            // --- Canvas Resize ---
-            function resizeCanvas() {
-                const dpr = Math.min(window.devicePixelRatio || 1, 2);
-                const layout = getLayout();
-                const logicalW = layout.w;
-                const logicalH = layout.h;
-                canvas.width = Math.round(logicalW * dpr);
-                canvas.height = Math.round(logicalH * dpr);
-                canvas.style.width = logicalW + 'px';
-                canvas.style.height = logicalH + 'px';
-                ctx.setTransform(1, 0, 0, 1, 0, 0);
-                ctx.scale(dpr, dpr);
-                canvas._logicalW = logicalW;
-                canvas._logicalH = logicalH;
-                wrap.style.height = Math.min(logicalH + 16, window.innerHeight * 0.6) + 'px';
+            // Dots at each point
+            for (const pt of points) {
+                const y = Math.max(graphTop, Math.min(graphBottom, gMid - (pt.cents/60)*gHeight));
+                ctx.beginPath(); ctx.arc(pt.x, y, 3, 0, Math.PI*2); ctx.fill();
             }
+        }
 
-            // --- Animation ---
-            function animate() {
-                if (activeVibrations.length > 0) drawAll();
-                requestAnimationFrame(animate);
-            }
+        // X-axis labels at fret positions
+        ctx.fillStyle = 'rgba(255,255,255,0.45)';
+        ctx.font = `${Math.max(6,gHeight*0.15)}px 'Segoe UI', sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText('0', nutX, graphBottom+gHeight*0.13); // open at nut
+        const labelFrets = [3,5,7,9,12,15,17,19,21,24];
+        for (const f of labelFrets) {
+            ctx.fillText(f, getFretX(f, layout), graphBottom+gHeight*0.13);
+        }
+    }
 
-            // --- Init ---
-            resizeCanvas();
-            updateInfoPanel();
-            drawAll();
-            requestAnimationFrame(animate);
+    function drawAll() {
+        const layout = getLayout();
+        ctx.clearRect(0,0,layout.w, layout.h);
+        drawFretboard(layout);
+        drawGraph(layout);
+    }
 
-            setTimeout(() => {
-                const layout = getLayout();
-                if (layout.w > wrap.clientWidth + 30) {
-                    scrollHint.style.opacity = '1';
-                    scrollHint._timeout = setTimeout(() => { scrollHint.style.opacity = '0'; }, 5000);
-                }
-            }, 600);
+    // --- Dropdown for custom tuning ---
+    function openNoteDropdown(stringIdx) {
+        closeNoteDropdown();
+        const layout = getLayout();
+        const y = layout.stringYAtNut(stringIdx);
+        const x = layout.openStartX - 10;
+        const canvasRect = canvas.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const pageX = canvasRect.left + x - wrap.scrollLeft;
+        const pageY = canvasRect.top + y;
 
-            window.addEventListener('resize', () => {
-                resizeCanvas();
+        const dropdown = document.createElement('div');
+        dropdown.className = 'note-dropdown';
+        dropdown.style.left = (pageX - containerRect.left - 60) + 'px';
+        dropdown.style.top = (pageY - containerRect.top - 10) + 'px';
+
+        const currentMidi = stringTuningMidiBase[stringIdx];
+        for (let midi=28; midi<=100; midi++) {
+            const noteName = midiToNoteName(midi);
+            const item = document.createElement('div');
+            item.className = 'note-item';
+            item.textContent = noteName;
+            item.dataset.midi = midi;
+            if (midi === currentMidi) item.classList.add('selected');
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                stringTuningMidiBase[stringIdx] = parseInt(e.target.dataset.midi);
+                closeNoteDropdown();
+                updateAllDisplays();
                 drawAll();
             });
+            dropdown.appendChild(item);
+        }
+        container.appendChild(dropdown);
+        noteDropdown = dropdown;
+        dropdownStringIndex = stringIdx;
+        const selected = dropdown.querySelector('.selected');
+        if (selected) selected.scrollIntoView({block:'center'});
+    }
+    function closeNoteDropdown() {
+        if (noteDropdown) { noteDropdown.remove(); noteDropdown = null; dropdownStringIndex = -1; }
+    }
 
-            console.log('🎸 24‑Fret Guitar Tuning & Intonation Demo Ready');
-            console.log('  ↔ Scroll horizontally to see all 24 frets');
-            console.log('  🔍 Use Zoom slider to spread out high frets');
-            console.log('  🎯 Tuning shifts all notes equally');
-            console.log('  🔧 Intonation errors grow up the neck');
-            console.log('  🖱️ Click any fret to play the note');
-        })();
-    </script>
+    function isClickOnStringLabel(mx, my) {
+        const layout = getLayout();
+        const openStartX = layout.openStartX;
+        for (let s=0; s<NUM_STRINGS; s++) {
+            const y = layout.stringYAtNut(s);
+            if (mx >= openStartX-65 && mx <= openStartX-5 && my >= y-layout.nutStringSpacing*0.4 && my <= y+layout.nutStringSpacing*0.4) return s;
+        }
+        return -1;
+    }
+
+    // --- Events ---
+    function getCanvasPos(e) { const r = canvas.getBoundingClientRect(); return {x: e.clientX-r.left, y: e.clientY-r.top}; }
+    function updateHover(e) {
+        if (noteDropdown) return;
+        const pos = getCanvasPos(e);
+        const res = getStringAndFret(pos.x, pos.y, getLayout());
+        if (res.stringIdx !== hoveredString || res.fretNum !== hoveredFret) {
+            hoveredString = res.stringIdx; hoveredFret = res.fretNum;
+            updateInfoPanel(); drawAll();
+        }
+    }
+    function updateInfoPanel() {
+        if (hoveredString>=0 && hoveredFret>=0) {
+            const ni = getNoteInfo(hoveredString, hoveredFret);
+            const nn = midiToNoteName(Math.round(ni.nominalMidi + ni.totalCents/100));
+            const absC = Math.abs(ni.totalCents);
+            let cls = absC>10 ? (ni.totalCents>0?'cents-sharp':'cents-flat') : (absC>3 ? (ni.totalCents>0?'cents-sharp':'cents-flat') : 'cents-good');
+            noteDisplay.textContent = nn;
+            const sign = ni.totalCents>=0?'+':'';
+            centsDisplay.innerHTML = `<span class="${cls}">${sign}${ni.totalCents.toFixed(1)} cents</span>`;
+            detailDisplay.textContent = `Str ${hoveredString+1} · ${hoveredFret===0?'open':`Fret ${hoveredFret}`} · ${getFrequency(hoveredString,hoveredFret).toFixed(2)} Hz`;
+        } else {
+            noteDisplay.textContent = '—'; centsDisplay.textContent = 'Hover or click'; detailDisplay.textContent = '';
+        }
+    }
+
+    canvas.addEventListener('mousemove', updateHover);
+    canvas.addEventListener('mouseleave', ()=>{ hoveredString=-1; hoveredFret=-1; updateInfoPanel(); drawAll(); });
+    canvas.addEventListener('click', (e)=>{
+        const pos = getCanvasPos(e);
+        const layout = getLayout();
+        const labelStr = isClickOnStringLabel(pos.x, pos.y);
+        if (labelStr>=0) { openNoteDropdown(labelStr); return; }
+        if (noteDropdown) { closeNoteDropdown(); return; }
+        const res = getStringAndFret(pos.x, pos.y, layout);
+        if (res.stringIdx>=0 && res.fretNum>=0) {
+            const freq = getFrequency(res.stringIdx, res.fretNum);
+            playNote(freq,0.6);
+            activeVibrations.push({stringIdx:res.stringIdx, fretNum:res.fretNum, amplitude:0.7, decayRate:0.5, freq, startTime:performance.now()/1000, phase:Math.random()*Math.PI*2});
+            hoveredString = res.stringIdx; hoveredFret = res.fretNum;
+            updateInfoPanel(); drawAll();
+        }
+    });
+    document.addEventListener('click', (e)=>{ if (noteDropdown && !e.target.closest('.note-dropdown') && e.target!==canvas) closeNoteDropdown(); });
+
+    // Touch
+    canvas.addEventListener('touchmove', (e)=>{ e.preventDefault(); updateHover({clientX:e.touches[0].clientX, clientY:e.touches[0].clientY}); }, {passive:false});
+    canvas.addEventListener('touchend', ()=>{ hoveredString=-1; hoveredFret=-1; updateInfoPanel(); drawAll(); });
+    canvas.addEventListener('touchstart', (e)=>{
+        e.preventDefault();
+        const t = e.touches[0];
+        const pos = {x: t.clientX-canvas.getBoundingClientRect().left, y: t.clientY-canvas.getBoundingClientRect().top};
+        const layout = getLayout();
+        const labelStr = isClickOnStringLabel(pos.x, pos.y);
+        if (labelStr>=0) { openNoteDropdown(labelStr); return; }
+        if (noteDropdown) { closeNoteDropdown(); return; }
+        const res = getStringAndFret(pos.x, pos.y, layout);
+        if (res.stringIdx>=0 && res.fretNum>=0) {
+            const freq = getFrequency(res.stringIdx, res.fretNum);
+            playNote(freq,0.55);
+            activeVibrations.push({stringIdx:res.stringIdx, fretNum:res.fretNum, amplitude:0.7, decayRate:0.5, freq, startTime:performance.now()/1000, phase:Math.random()*Math.PI*2});
+            hoveredString=res.stringIdx; hoveredFret=res.fretNum; updateInfoPanel(); drawAll();
+        }
+    }, {passive:false});
+
+    // --- Controls ---
+    tuningSlider.addEventListener('input', ()=>{
+        tuningCents = parseInt(tuningSlider.value);
+        tuningValEl.textContent = `${tuningCents>0?'+':''}${tuningCents} ¢`;
+        updateInfoPanel(); drawAll();
+    });
+    intonationSlider.addEventListener('input', ()=>{
+        const newVal = parseFloat(intonationSlider.value);
+        const delta = newVal - lastIntSliderVal;
+        if (selectedString === -1) {
+            for (let i=0; i<NUM_STRINGS; i++) intonationOffsets[i] = Math.min(25, Math.max(-25, intonationOffsets[i]+delta));
+            intonationSlider.value = intonationOffsets[0]; lastIntSliderVal = intonationOffsets[0];
+        } else {
+            const clamped = Math.min(25, Math.max(-25, newVal));
+            intonationOffsets[selectedString] = clamped; intonationSlider.value = clamped; lastIntSliderVal = clamped;
+        }
+        updateIntonationDisplay(); updateInfoPanel(); drawAll();
+    });
+    function updateIntonationDisplay() {
+        if (selectedString === -1) intonationValEl.textContent = `All ${(intonationOffsets[0]*0.16).toFixed(1)} mm`;
+        else intonationValEl.textContent = `${(intonationOffsets[selectedString]*0.16).toFixed(1)} mm`;
+    }
+    zoomSlider.addEventListener('input', ()=>{
+        widthScale = parseFloat(zoomSlider.value);
+        zoomValEl.textContent = `${widthScale.toFixed(1)}×`;
+        resizeCanvas(); drawAll();
+    });
+    resetBtn.addEventListener('click', ()=>{
+        tuningCents=0; intonationOffsets=[0,0,0,0,0,0]; stringTuningMidiBase=[64,59,55,50,45,40];
+        tuningSlider.value=0; intonationSlider.value=0; lastIntSliderVal=0;
+        tuningValEl.textContent='0 ¢'; intonationValEl.textContent='0.0 mm';
+        selectedString=-1; stringSelectBtn.textContent='📍 All Strings'; stringSelectBtn.classList.add('active-btn');
+        activeVibrations=[]; updateInfoPanel(); drawAll(); wrap.scrollLeft=0;
+    });
+    presetBadBtn.addEventListener('click', ()=>{ intonationOffsets=[18,18,18,18,18,18]; intonationSlider.value=18; lastIntSliderVal=18; updateIntonationDisplay(); drawAll(); });
+    presetDetuneBtn.addEventListener('click', ()=>{ tuningCents=-25; tuningSlider.value=-25; tuningValEl.textContent='-25 ¢'; drawAll(); });
+    presetBothBtn.addEventListener('click', ()=>{
+        tuningCents=20; intonationOffsets=[-15,-15,-15,-15,-15,-15];
+        tuningSlider.value=20; intonationSlider.value=-15; lastIntSliderVal=-15;
+        tuningValEl.textContent='+20 ¢'; updateIntonationDisplay(); drawAll();
+    });
+    stringSelectBtn.addEventListener('click', ()=>{
+        if (selectedString<0) selectedString=0;
+        else if (selectedString<NUM_STRINGS-1) selectedString++;
+        else selectedString=-1;
+        if (selectedString<0) {
+            stringSelectBtn.textContent='📍 All Strings'; intonationSlider.value=intonationOffsets[0]; lastIntSliderVal=intonationOffsets[0];
+        } else {
+            stringSelectBtn.textContent=`📍 String ${selectedString+1} (${midiToNoteName(stringTuningMidiBase[selectedString])})`;
+            intonationSlider.value=intonationOffsets[selectedString]; lastIntSliderVal=intonationOffsets[selectedString];
+        }
+        updateIntonationDisplay(); drawAll();
+    });
+    function updateAllDisplays() {
+        if (selectedString>=0) stringSelectBtn.textContent=`📍 String ${selectedString+1} (${midiToNoteName(stringTuningMidiBase[selectedString])})`;
+        updateInfoPanel();
+    }
+
+    wrap.addEventListener('scroll', ()=>{ scrollHint.style.opacity='0'; });
+    wrap.addEventListener('mouseenter', ()=>{ if(getLayout().w>wrap.clientWidth+30){ scrollHint.style.opacity='1'; clearTimeout(scrollHint._timeout); scrollHint._timeout=setTimeout(()=>{scrollHint.style.opacity='0';},3500); } });
+
+    function resizeCanvas() {
+        const dpr = Math.min(window.devicePixelRatio||1,2);
+        const layout = getLayout();
+        canvas.width = Math.round(layout.w*dpr); canvas.height = Math.round(layout.h*dpr);
+        canvas.style.width = layout.w+'px'; canvas.style.height = layout.h+'px';
+        ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr);
+        canvas._logicalW = layout.w; canvas._logicalH = layout.h;
+        wrap.style.height = Math.min(layout.h+16, window.innerHeight*0.6)+'px';
+    }
+
+    function animate() { if (activeVibrations.length>0) drawAll(); requestAnimationFrame(animate); }
+
+    resizeCanvas(); updateInfoPanel(); drawAll(); requestAnimationFrame(animate);
+    setTimeout(() => { if(getLayout().w>wrap.clientWidth+30){ scrollHint.style.opacity='1'; scrollHint._timeout=setTimeout(()=>{scrollHint.style.opacity='0';},5000); } },600);
+    window.addEventListener('resize', ()=>{ resizeCanvas(); drawAll(); });
+})();
+</script>
 </body>
 </html>
