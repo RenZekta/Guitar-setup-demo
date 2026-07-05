@@ -55,7 +55,7 @@
         .canvas-wrap {
             position: relative; background: #1a1008; border-radius: 12px; overflow-x: auto; overflow-y: hidden;
             border: 2px solid #3a2a18; box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
-            cursor: pointer; height: 540px; max-height: 62vh; -webkit-overflow-scrolling: touch;
+            cursor: pointer; height: 510px; max-height: 62vh; -webkit-overflow-scrolling: touch;
             scroll-behavior: smooth;
         }
         .canvas-wrap::-webkit-scrollbar { height: 10px; background: var(--scrollbar-bg); border-radius: 0 0 10px 10px; }
@@ -122,7 +122,7 @@
     <div class="header">
         <div>
             <h1>🎸 Tuning &amp; Intonation — 24 Frets</h1>
-            <span class="subtitle">Scroll ↔ · Zoom · Click to play</span>
+            <span class="subtitle">Scroll ↔ · Zoom · Click to play · <strong>Click open note to retune</strong></span>
         </div>
         <div class="legend">
             <span><span class="dot" style="background:#5cb878;"></span> In tune (±3¢)</span>
@@ -199,7 +199,7 @@
     // --- State ---
     let widthScale = 1.0;
     const BASE_SCALE_PX = 700;
-    const LOGICAL_HEIGHT = 530;
+    const LOGICAL_HEIGHT = 510;
     const NOMINAL_REF_MM = 649;
     const FIXED_NUT_X = 70;
     const OPEN_AREA_WIDTH = 28;
@@ -274,7 +274,7 @@
         return notes[((midi%12)+12)%12] + (Math.floor(midi/12)-1);
     }
 
-    // --- Layout (extended fretboard top to cover saddles) ---
+    // --- Layout (reduced top gap) ---
     function getLayout() {
         const scalePx = BASE_SCALE_PX * widthScale;
         const nutX = FIXED_NUT_X;
@@ -293,16 +293,19 @@
         const maxSaddle = Math.max(...actualSaddleXArr);
         const w = maxSaddle + 180;
         const h = LOGICAL_HEIGHT;
-        // Extended upward to fully cover saddles
-        const fretboardTop = h * 0.03;
-        const fretboardBottom = h * 0.75;
-        const fbHeight = fretboardBottom - fretboardTop;
+
+        const fretboardTop = h * 0.115;   // reduced from 0.15
+        const fbHeight = h * 0.65;
+        const fretboardBottom = fretboardTop + fbHeight;
+
         const nutStringSpacing = fbHeight / (NUM_STRINGS + 0.4);
         const saddleStringSpacing = fbHeight / (NUM_STRINGS - 0.2);
         const stringYAtNut = (i) => fretboardTop + nutStringSpacing * (i + 0.2);
         const stringYAtSaddle = (i) => fretboardTop + saddleStringSpacing * (i - 0.1);
-        const graphTop = h * 0.82;
+
+        const graphTop = h * 0.83;
         const graphBottom = h * 0.97;
+
         return {
             w, h, nutX, openStartX, scalePx, fbHeight,
             fretboardTop, fretboardBottom,
@@ -388,25 +391,27 @@
         return {r:Math.round(hue2rgb(p,q,h+1/3)*255), g:Math.round(hue2rgb(p,q,h)*255), b:Math.round(hue2rgb(p,q,h-1/3)*255), alpha:0.55+s*0.4};
     }
 
-    // --- Drawing ---
+    // --- Drawing (fret numbers moved up) ---
     function drawFretboard(layout) {
-        const {openStartX, nutX, fbHeight, fretboardTop, fretboardBottom, nutStringSpacing, actualSaddleXArr, nominalSaddleXArr} = layout;
+        const {openStartX, nutX, fbHeight, fretboardTop, fretboardBottom, nutStringSpacing, actualSaddleXArr, nominalSaddleXArr, stringYAtSaddle} = layout;
         const maxSaddle = Math.max(...actualSaddleXArr);
+        const topSaddleY = stringYAtSaddle(0) - fbHeight*0.07;
+        const bottomSaddleY = stringYAtSaddle(5) + fbHeight*0.07;
 
-        // Extended wood background
-        const woodGrad = ctx.createLinearGradient(0, fretboardTop-8, 0, fretboardBottom+4);
+        const woodTop = topSaddleY - 8;
+        const woodBottom = bottomSaddleY + 8;
+        const woodGrad = ctx.createLinearGradient(0, woodTop, 0, woodBottom);
         woodGrad.addColorStop(0,'#3d2817'); woodGrad.addColorStop(0.3,'#4a3020'); woodGrad.addColorStop(0.5,'#3e2516');
         woodGrad.addColorStop(0.7,'#4a3020'); woodGrad.addColorStop(1,'#382215');
         ctx.fillStyle = woodGrad;
-        ctx.fillRect(openStartX-10, fretboardTop-8, maxSaddle-openStartX+28, fretboardBottom-fretboardTop+16);
+        ctx.fillRect(openStartX-10, woodTop, maxSaddle-openStartX+28, woodBottom-woodTop);
         ctx.strokeStyle = 'rgba(0,0,0,0.05)'; ctx.lineWidth=1;
-        for (let gy=fretboardTop-6; gy<fretboardBottom+4; gy+=2.2) {
+        for (let gy=woodTop; gy<woodBottom; gy+=2.2) {
             ctx.beginPath(); ctx.moveTo(openStartX-8, gy); ctx.lineTo(maxSaddle+18, gy + Math.sin(gy*0.35+42)*4 + Math.sin(gy*0.8+17)*2); ctx.stroke();
         }
         ctx.strokeStyle = '#1a0d04'; ctx.lineWidth=3.5;
-        ctx.strokeRect(openStartX-5, fretboardTop-6, maxSaddle-openStartX+20, fretboardBottom-fretboardTop+14);
+        ctx.strokeRect(openStartX-5, woodTop-2, maxSaddle-openStartX+20, woodBottom-woodTop+4);
 
-        // Cells
         for (let s=0; s<NUM_STRINGS; s++) {
             const actualSX = actualSaddleXArr[s];
             let color = centsToColor(getCentsDeviation(s,0));
@@ -425,25 +430,23 @@
             }
         }
 
-        // Frets — extended to cover full height
         for (let f=0; f<=24; f++) {
             const fx = (f===0) ? nutX : getFretX(f, layout);
             const fretW = (f>=20) ? 1.8 : 2.2;
             ctx.fillStyle = 'rgba(0,0,0,0.45)';
-            ctx.fillRect(fx-1.2, fretboardTop-5, fretW+0.8, fretboardBottom-fretboardTop+12);
+            ctx.fillRect(fx-1.2, woodTop-2, fretW+0.8, woodBottom-woodTop+4);
             const grad = ctx.createLinearGradient(fx-0.8,0,fx+fretW-0.5,0);
             grad.addColorStop(0,'#999'); grad.addColorStop(0.35,'#e0e0e0'); grad.addColorStop(0.5,'#f5f5f5'); grad.addColorStop(0.65,'#e0e0e0'); grad.addColorStop(1,'#888');
             ctx.fillStyle = grad;
-            ctx.fillRect(fx-0.8, fretboardTop-4, fretW, fretboardBottom-fretboardTop+10);
+            ctx.fillRect(fx-0.8, woodTop-1, fretW, woodBottom-woodTop+2);
             if (f>0 && fretNumberFrets.has(f)) {
                 ctx.fillStyle = 'rgba(255,255,255,0.6)';
-                ctx.font = `bold ${Math.max(7, fbHeight*0.058)}px 'Segoe UI', sans-serif`;
+                ctx.font = `bold ${Math.max(7, fbHeight*0.055)}px 'Segoe UI', sans-serif`;
                 ctx.textAlign = 'center';
-                ctx.fillText(f, fx, fretboardBottom+fbHeight*0.085);
+                ctx.fillText(f, fx, fretboardBottom + 6);   // moved up by 6px (was 12)
             }
         }
 
-        // Inlays
         for (const df of dotFrets) {
             const fx = getFretX(df, layout);
             const fxPrev = df>0 ? getFretX(df-1, layout) : nutX;
@@ -459,14 +462,12 @@
             }
         }
 
-        // Nut
         const nutGrad = ctx.createLinearGradient(nutX-2.5,0,nutX+2.5,0);
         nutGrad.addColorStop(0,'#ccc'); nutGrad.addColorStop(0.4,'#fafafa'); nutGrad.addColorStop(0.6,'#fafafa'); nutGrad.addColorStop(1,'#bbb');
         ctx.fillStyle = nutGrad;
-        ctx.fillRect(nutX-2.5, fretboardTop-6, 5, fretboardBottom-fretboardTop+14);
-        ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth=1; ctx.strokeRect(nutX-2.5, fretboardTop-6, 5, fretboardBottom-fretboardTop+14);
+        ctx.fillRect(nutX-2.5, woodTop-2, 5, woodBottom-woodTop+4);
+        ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth=1; ctx.strokeRect(nutX-2.5, woodTop-2, 5, woodBottom-woodTop+4);
 
-        // Strings
         for (let s=0; s<NUM_STRINGS; s++) {
             const yNut = layout.stringYAtNut(s), ySaddle = layout.stringYAtSaddle(s);
             const actualSX = actualSaddleXArr[s], thick = stringGauges[s]*(fbHeight/270);
@@ -482,7 +483,6 @@
             ctx.beginPath(); ctx.moveTo(openStartX, yNut-thick*0.2); ctx.lineTo(actualSX, ySaddle-thick*0.2); ctx.stroke();
         }
 
-        // Saddles
         const saddleW = fbHeight*0.03;
         for (let s=0; s<NUM_STRINGS; s++) {
             const actualSX = actualSaddleXArr[s], ySaddle = layout.stringYAtSaddle(s);
@@ -492,7 +492,6 @@
             ctx.fillStyle = grad; ctx.fillRect(actualSX-saddleW/2, yTop, saddleW, yBottom-yTop);
             ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth=1; ctx.strokeRect(actualSX-saddleW/2, yTop, saddleW, yBottom-yTop);
 
-            // Nut-to-saddle distance label
             const distMm = nominalSaddleDistMm[s] + intonationOffsets[s] * 0.16;
             ctx.fillStyle = 'rgba(255,255,255,0.7)';
             ctx.font = `${Math.max(7, fbHeight*0.045)}px 'Segoe UI', sans-serif`;
@@ -500,7 +499,6 @@
             ctx.fillText(`${distMm.toFixed(1)} mm`, actualSX + saddleW/2 + 4, ySaddle + fbHeight*0.015);
         }
 
-        // Nominal dashed
         for (let s=0; s<NUM_STRINGS; s++) {
             if (Math.abs(intonationOffsets[s]) < 0.2) continue;
             const nominalX = nominalSaddleXArr[s];
@@ -510,7 +508,6 @@
             ctx.setLineDash([]);
         }
 
-        // Vibrating strings
         const now = performance.now()/1000;
         for (let v=activeVibrations.length-1; v>=0; v--) {
             const vib = activeVibrations[v];
@@ -536,7 +533,6 @@
             ctx.stroke();
         }
 
-        // Open string labels
         for (let s=0; s<NUM_STRINGS; s++) {
             const yNut = layout.stringYAtNut(s);
             const ni = getNoteInfo(s,0);
@@ -547,7 +543,6 @@
             ctx.fillText(nn, openStartX - 10, yNut+fbHeight*0.016);
         }
 
-        // Hover highlight
         if (hoveredString>=0 && hoveredFret>=0 && hoveredString<NUM_STRINGS) {
             let cellLeft, cellRight;
             if (hoveredFret === 0) { cellLeft = openStartX; cellRight = nutX; }
@@ -572,7 +567,7 @@
         ctx.fillStyle = 'rgba(18,18,26,0.85)'; ctx.fillRect(gLeft-8, graphTop-5, gRight-gLeft+16, gHeight+10);
         ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth=1; ctx.strokeRect(gLeft-8, graphTop-5, gRight-gLeft+16, gHeight+10);
         ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = `${Math.max(7,gHeight*0.2)}px 'Segoe UI', sans-serif`;
-        ctx.textAlign = 'left'; ctx.fillText('Cents Deviation', gLeft+2, graphTop-2);
+        ctx.textAlign = 'left'; ctx.fillText('Deviation Graph', gLeft+2, graphTop-2);
 
         ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth=1; ctx.setLineDash([3,5]);
         ctx.beginPath(); ctx.moveTo(gLeft, gMid); ctx.lineTo(gRight, gMid); ctx.stroke(); ctx.setLineDash([]);
@@ -721,6 +716,14 @@
     });
     document.addEventListener('click', (e)=>{ if (noteDropdown && !e.target.closest('.note-dropdown') && e.target!==canvas) closeNoteDropdown(); });
 
+    // Horizontal scroll with mouse wheel
+    wrap.addEventListener('wheel', (e) => {
+        if (e.deltaY !== 0) {
+            e.preventDefault();
+            wrap.scrollLeft += e.deltaY * 1.5; // smooth horizontal scroll
+        }
+    }, { passive: false });
+
     canvas.addEventListener('touchmove', (e)=>{ e.preventDefault(); updateHover({clientX:e.touches[0].clientX, clientY:e.touches[0].clientY}); }, {passive:false});
     canvas.addEventListener('touchend', ()=>{ hoveredString=-1; hoveredFret=-1; updateInfoPanel(); drawAll(); });
     canvas.addEventListener('touchstart', (e)=>{
@@ -740,7 +743,7 @@
         }
     }, {passive:false});
 
-    // --- Control handlers (no clamping on per-string tuning offsets) ---
+    // --- Controls (unrestricted per‑string tuning) ---
     tuningSlider.addEventListener('input', ()=>{
         const newVal = parseInt(tuningSlider.value);
         if (selectedString === -1) {
@@ -808,31 +811,20 @@
         resizeCanvas(); drawAll();
     });
 
-    // Reset buttons
     resetTuningBtn.addEventListener('click', (e)=>{
         e.stopPropagation();
-        if (selectedString === -1) {
-            stringTuningOffsets = [0,0,0,0,0,0];
-        } else {
-            stringTuningOffsets[selectedString] = 0;
-        }
-        tuningSlider.value = 0;
-        lastTuneSliderVal = 0;
-        updateTuningDisplay();
-        drawAll();
+        if (selectedString === -1) stringTuningOffsets = [0,0,0,0,0,0];
+        else stringTuningOffsets[selectedString] = 0;
+        tuningSlider.value = 0; lastTuneSliderVal = 0;
+        updateTuningDisplay(); drawAll();
     });
 
     resetIntonationBtn.addEventListener('click', (e)=>{
         e.stopPropagation();
-        if (selectedString === -1) {
-            intonationOffsets = [0,0,0,0,0,0];
-        } else {
-            intonationOffsets[selectedString] = 0;
-        }
-        intonationSlider.value = 0;
-        lastIntSliderVal = 0;
-        updateIntonationDisplay();
-        drawAll();
+        if (selectedString === -1) intonationOffsets = [0,0,0,0,0,0];
+        else intonationOffsets[selectedString] = 0;
+        intonationSlider.value = 0; lastIntSliderVal = 0;
+        updateIntonationDisplay(); drawAll();
     });
 
     resetBtn.addEventListener('click', ()=>{
@@ -840,13 +832,11 @@
         intonationOffsets = [0,0,0,0,0,0];
         tuningSlider.value = 0; lastTuneSliderVal = 0;
         intonationSlider.value = 0; lastIntSliderVal = 0;
-        updateTuningDisplay();
-        updateIntonationDisplay();
+        updateTuningDisplay(); updateIntonationDisplay();
         selectedString = -1; stringSelectBtn.textContent = '📍 All Strings'; stringSelectBtn.classList.add('active-btn');
         activeVibrations = []; updateInfoPanel(); drawAll(); wrap.scrollLeft = 0;
     });
 
-    // Presets
     presetBadBtn.addEventListener('click', ()=>{
         intonationOffsets = [-14, -18, -18, -15, -17, -19];
         if (selectedString === -1) {
@@ -856,8 +846,7 @@
             intonationSlider.value = intonationOffsets[selectedString];
             lastIntSliderVal = intonationSlider.value;
         }
-        updateIntonationDisplay();
-        drawAll();
+        updateIntonationDisplay(); drawAll();
     });
 
     presetDetuneBtn.addEventListener('click', ()=>{
@@ -869,8 +858,7 @@
             tuningSlider.value = Math.min(50, Math.max(-50, stringTuningOffsets[selectedString]));
             lastTuneSliderVal = tuningSlider.value;
         }
-        updateTuningDisplay();
-        drawAll();
+        updateTuningDisplay(); drawAll();
     });
 
     presetBothBtn.addEventListener('click', ()=>{
@@ -887,9 +875,7 @@
             intonationSlider.value = intonationOffsets[selectedString];
             lastIntSliderVal = intonationSlider.value;
         }
-        updateTuningDisplay();
-        updateIntonationDisplay();
-        drawAll();
+        updateTuningDisplay(); updateIntonationDisplay(); drawAll();
     });
 
     stringSelectBtn.addEventListener('click', ()=>{
@@ -910,16 +896,12 @@
             intonationSlider.value = intonationOffsets[selectedString];
             lastIntSliderVal = intonationSlider.value;
         }
-        updateTuningDisplay();
-        updateIntonationDisplay();
-        drawAll();
+        updateTuningDisplay(); updateIntonationDisplay(); drawAll();
     });
 
     function updateAllDisplays() {
         if (selectedString >= 0) stringSelectBtn.textContent = `📍 String ${selectedString+1} (${midiToNoteName(stringTuningMidiBase[selectedString])})`;
-        updateTuningDisplay();
-        updateIntonationDisplay();
-        updateInfoPanel();
+        updateTuningDisplay(); updateIntonationDisplay(); updateInfoPanel();
     }
 
     wrap.addEventListener('scroll', ()=>{ scrollHint.style.opacity='0'; });
