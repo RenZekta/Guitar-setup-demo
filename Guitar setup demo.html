@@ -218,6 +218,10 @@
     let noteDropdown = null;
     let dropdownStringIndex = -1;
 
+    // Strumming state
+    let isMouseDown = false;
+    let lastPlayedString = -1, lastPlayedFret = -1;
+
     function getAverageTuning() {
         const sum = stringTuningOffsets.reduce((a,b) => a + b, 0);
         return Math.round(sum / NUM_STRINGS);
@@ -294,7 +298,7 @@
         const w = maxSaddle + 180;
         const h = LOGICAL_HEIGHT;
 
-        const fretboardTop = h * 0.115;   // reduced from 0.15
+        const fretboardTop = h * 0.115;
         const fbHeight = h * 0.65;
         const fretboardBottom = fretboardTop + fbHeight;
 
@@ -391,7 +395,7 @@
         return {r:Math.round(hue2rgb(p,q,h+1/3)*255), g:Math.round(hue2rgb(p,q,h)*255), b:Math.round(hue2rgb(p,q,h-1/3)*255), alpha:0.55+s*0.4};
     }
 
-    // --- Drawing (fret numbers moved up) ---
+    // --- Drawing ---
     function drawFretboard(layout) {
         const {openStartX, nutX, fbHeight, fretboardTop, fretboardBottom, nutStringSpacing, actualSaddleXArr, nominalSaddleXArr, stringYAtSaddle} = layout;
         const maxSaddle = Math.max(...actualSaddleXArr);
@@ -443,7 +447,7 @@
                 ctx.fillStyle = 'rgba(255,255,255,0.6)';
                 ctx.font = `bold ${Math.max(7, fbHeight*0.055)}px 'Segoe UI', sans-serif`;
                 ctx.textAlign = 'center';
-                ctx.fillText(f, fx, fretboardBottom + 6);   // moved up by 6px (was 12)
+                ctx.fillText(f, fx, fretboardBottom + 6);
             }
         }
 
@@ -671,8 +675,21 @@
         return -1;
     }
 
-    // --- Events ---
+    // --- Event Handling (with strumming) ---
     function getCanvasPos(e) { const r = canvas.getBoundingClientRect(); return {x: e.clientX-r.left, y: e.clientY-r.top}; }
+
+    function triggerNote(stringIdx, fretNum) {
+        if (stringIdx < 0 || fretNum < 0) return;
+        const freq = getFrequency(stringIdx, fretNum);
+        playNote(freq, 0.6);
+        activeVibrations.push({
+            stringIdx, fretNum, amplitude: 0.7, decayRate: 0.5, freq,
+            startTime: performance.now()/1000, phase: Math.random()*Math.PI*2
+        });
+        lastPlayedString = stringIdx;
+        lastPlayedFret = fretNum;
+    }
+
     function updateHover(e) {
         if (noteDropdown) return;
         const pos = getCanvasPos(e);
@@ -682,6 +699,7 @@
             updateInfoPanel(); drawAll();
         }
     }
+
     function updateInfoPanel() {
         if (hoveredString>=0 && hoveredFret>=0) {
             const ni = getNoteInfo(hoveredString, hoveredFret);
@@ -689,61 +707,167 @@
             const absC = Math.abs(ni.totalCents);
             let cls = absC>10 ? (ni.totalCents>0?'cents-sharp':'cents-flat') : (absC>3 ? (ni.totalCents>0?'cents-sharp':'cents-flat') : 'cents-good');
             noteDisplay.textContent = nn;
-            const sign = ni.totalCents>=0?'+':'';
-            centsDisplay.innerHTML = `<span class="${cls}">${sign}${ni.totalCents.toFixed(1)} cents</span>`;
+
+            // Fix ±0.0 display
+            const totalCents = ni.totalCents;
+            let centsStr;
+            if (Math.abs(totalCents) < 0.05) {
+                centsStr = '0.0 cents';
+            } else {
+                const sign = totalCents>=0?'+':'';
+                centsStr = `${sign}${totalCents.toFixed(1)} cents`;
+            }
+            centsDisplay.innerHTML = `<span class="${cls}">${centsStr}</span>`;
             detailDisplay.textContent = `Str ${hoveredString+1} · ${hoveredFret===0?'open':`Fret ${hoveredFret}`} · ${getFrequency(hoveredString,hoveredFret).toFixed(2)} Hz`;
         } else {
             noteDisplay.textContent = '—'; centsDisplay.textContent = 'Hover or click'; detailDisplay.textContent = '';
         }
     }
 
-    canvas.addEventListener('mousemove', updateHover);
-    canvas.addEventListener('mouseleave', ()=>{ hoveredString=-1; hoveredFret=-1; updateInfoPanel(); drawAll(); });
-    canvas.addEventListener('click', (e)=>{
+    // --- Mouse events for strumming ---
+    canvas.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        if (e.button !== 0) return; // only left button
         const pos = getCanvasPos(e);
         const layout = getLayout();
         const labelStr = isClickOnStringLabel(pos.x, pos.y);
-        if (labelStr>=0) { openNoteDropdown(labelStr); return; }
+        if (labelStr >= 0) {
+            // Open dropdown on mousedown over label (we'll let the click handler do it, so just return)
+            return;
+        }
         if (noteDropdown) { closeNoteDropdown(); return; }
+
+        isMouseDown = true;
+        lastPlayedString = -1; lastPlayedFret = -1;
         const res = getStringAndFret(pos.x, pos.y, layout);
-        if (res.stringIdx>=0 && res.fretNum>=0) {
-            const freq = getFrequency(res.stringIdx, res.fretNum);
-            playNote(freq,0.6);
-            activeVibrations.push({stringIdx:res.stringIdx, fretNum:res.fretNum, amplitude:0.7, decayRate:0.5, freq, startTime:performance.now()/1000, phase:Math.random()*Math.PI*2});
+        if (res.stringIdx >= 0 && res.fretNum >= 0) {
+            triggerNote(res.stringIdx, res.fretNum);
             hoveredString = res.stringIdx; hoveredFret = res.fretNum;
             updateInfoPanel(); drawAll();
         }
     });
-    document.addEventListener('click', (e)=>{ if (noteDropdown && !e.target.closest('.note-dropdown') && e.target!==canvas) closeNoteDropdown(); });
 
-    // Horizontal scroll with mouse wheel
-    wrap.addEventListener('wheel', (e) => {
-        if (e.deltaY !== 0) {
-            e.preventDefault();
-            wrap.scrollLeft += e.deltaY * 1.5; // smooth horizontal scroll
+    window.addEventListener('mousemove', (e) => {
+        if (!isMouseDown) {
+            updateHover(e);
+            return;
         }
-    }, { passive: false });
+        // While strumming, update hover and trigger new notes
+        const pos = getCanvasPos(e);
+        const layout = getLayout();
+        const res = getStringAndFret(pos.x, pos.y, layout);
+        if (res.stringIdx >= 0 && res.fretNum >= 0) {
+            if (res.stringIdx !== lastPlayedString || res.fretNum !== lastPlayedFret) {
+                triggerNote(res.stringIdx, res.fretNum);
+            }
+        }
+        // Update hover display even while strumming
+        if (res.stringIdx !== hoveredString || res.fretNum !== hoveredFret) {
+            hoveredString = res.stringIdx; hoveredFret = res.fretNum;
+            updateInfoPanel(); drawAll();
+        }
+    });
 
-    canvas.addEventListener('touchmove', (e)=>{ e.preventDefault(); updateHover({clientX:e.touches[0].clientX, clientY:e.touches[0].clientY}); }, {passive:false});
-    canvas.addEventListener('touchend', ()=>{ hoveredString=-1; hoveredFret=-1; updateInfoPanel(); drawAll(); });
-    canvas.addEventListener('touchstart', (e)=>{
+    window.addEventListener('mouseup', () => {
+        if (isMouseDown) {
+            isMouseDown = false;
+            lastPlayedString = -1; lastPlayedFret = -1;
+        }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        if (isMouseDown) {
+            isMouseDown = false;
+            lastPlayedString = -1; lastPlayedFret = -1;
+        }
+        hoveredString = -1; hoveredFret = -1;
+        updateInfoPanel(); drawAll();
+    });
+
+    canvas.addEventListener('click', (e) => {
+        // If the mouse moved between mousedown and mouseup, the browser will not fire click, so this is a pure click.
+        const pos = getCanvasPos(e);
+        const layout = getLayout();
+        const labelStr = isClickOnStringLabel(pos.x, pos.y);
+        if (labelStr >= 0) {
+            openNoteDropdown(labelStr);
+            return;
+        }
+        if (noteDropdown) { closeNoteDropdown(); return; }
+        // For a pure click, we already triggered the note on mousedown if it was a single click without movement.
+        // But we also want the click to work if the user didn't mousedown? Actually mousedown will always fire before click.
+        // So we don't need to trigger again here.
+    });
+
+    // Touch strumming
+    canvas.addEventListener('touchstart', (e) => {
         e.preventDefault();
         const t = e.touches[0];
         const pos = {x: t.clientX-canvas.getBoundingClientRect().left, y: t.clientY-canvas.getBoundingClientRect().top};
         const layout = getLayout();
         const labelStr = isClickOnStringLabel(pos.x, pos.y);
-        if (labelStr>=0) { openNoteDropdown(labelStr); return; }
-        if (noteDropdown) { closeNoteDropdown(); return; }
-        const res = getStringAndFret(pos.x, pos.y, layout);
-        if (res.stringIdx>=0 && res.fretNum>=0) {
-            const freq = getFrequency(res.stringIdx, res.fretNum);
-            playNote(freq,0.55);
-            activeVibrations.push({stringIdx:res.stringIdx, fretNum:res.fretNum, amplitude:0.7, decayRate:0.5, freq, startTime:performance.now()/1000, phase:Math.random()*Math.PI*2});
-            hoveredString=res.stringIdx; hoveredFret=res.fretNum; updateInfoPanel(); drawAll();
+        if (labelStr >= 0) {
+            openNoteDropdown(labelStr);
+            return;
         }
-    }, {passive:false});
+        if (noteDropdown) { closeNoteDropdown(); return; }
 
-    // --- Controls (unrestricted per‑string tuning) ---
+        isMouseDown = true;
+        lastPlayedString = -1; lastPlayedFret = -1;
+        const res = getStringAndFret(pos.x, pos.y, layout);
+        if (res.stringIdx >= 0 && res.fretNum >= 0) {
+            triggerNote(res.stringIdx, res.fretNum);
+            hoveredString = res.stringIdx; hoveredFret = res.fretNum;
+            updateInfoPanel(); drawAll();
+        }
+    }, {passive: false});
+
+    canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (!isMouseDown) return;
+        const t = e.touches[0];
+        const pos = {x: t.clientX-canvas.getBoundingClientRect().left, y: t.clientY-canvas.getBoundingClientRect().top};
+        const layout = getLayout();
+        const res = getStringAndFret(pos.x, pos.y, layout);
+        if (res.stringIdx >= 0 && res.fretNum >= 0) {
+            if (res.stringIdx !== lastPlayedString || res.fretNum !== lastPlayedFret) {
+                triggerNote(res.stringIdx, res.fretNum);
+            }
+        }
+        if (res.stringIdx !== hoveredString || res.fretNum !== hoveredFret) {
+            hoveredString = res.stringIdx; hoveredFret = res.fretNum;
+            updateInfoPanel(); drawAll();
+        }
+    }, {passive: false});
+
+    canvas.addEventListener('touchend', () => {
+        isMouseDown = false;
+        lastPlayedString = -1; lastPlayedFret = -1;
+        hoveredString = -1; hoveredFret = -1;
+        updateInfoPanel(); drawAll();
+    });
+
+    // Horizontal scroll with mouse wheel
+    wrap.addEventListener('wheel', (e) => {
+        if (e.ctrlKey) {
+            e.preventDefault();
+            const delta = -Math.sign(e.deltaY) * 0.1;
+            let newZoom = widthScale + delta;
+            newZoom = Math.min(3.0, Math.max(0.8, newZoom));
+            widthScale = newZoom;
+            zoomSlider.value = widthScale;
+            zoomValEl.textContent = `${widthScale.toFixed(1)}×`;
+            resizeCanvas();
+            drawAll();
+        } else {
+            if (e.deltaY !== 0) {
+                e.preventDefault();
+                wrap.scrollLeft += e.deltaY * 1.5;
+            }
+        }
+    }, { passive: false });
+
+    // --- Controls (unchanged) ---
     tuningSlider.addEventListener('input', ()=>{
         const newVal = parseInt(tuningSlider.value);
         if (selectedString === -1) {
