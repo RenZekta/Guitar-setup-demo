@@ -71,21 +71,11 @@
         }
         .control-group label { display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; font-weight: 600; margin-bottom: 4px; }
         .val-container { display: flex; align-items: center; gap: 4px; }
-        .val-container .val { font-size: 0.78rem; color: var(--accent); font-weight: 700; min-width: 55px; text-align: right; background: #2a2a38; padding: 2px 7px; border-radius: 4px; }
+        .val-container .val { font-size: 0.78rem; color: var(--accent); font-weight: 700; min-width: 60px; text-align: right; background: #2a2a38; padding: 2px 7px; border-radius: 4px; }
         .reset-btn-small {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            border-radius: 4px;
-            width: 20px;
-            height: 20px;
-            font-size: 12px;
-            line-height: 1;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
+            background: transparent; border: 1px solid var(--border); color: var(--text-secondary);
+            border-radius: 4px; width: 20px; height: 20px; font-size: 12px; line-height: 1;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;
         }
         .reset-btn-small:hover { background: #3d2525; border-color: var(--danger); color: #e88888; }
         .control-group .desc { font-size: 0.68rem; color: var(--text-secondary); margin-bottom: 6px; }
@@ -228,15 +218,13 @@
     let noteDropdown = null;
     let dropdownStringIndex = -1;
 
-    // Helper functions for averages
     function getAverageTuning() {
         const sum = stringTuningOffsets.reduce((a,b) => a + b, 0);
         return Math.round(sum / NUM_STRINGS);
     }
-
     function getAverageIntonation() {
         const sum = intonationOffsets.reduce((a,b) => a + b, 0);
-        return Math.round(sum / NUM_STRINGS * 2) / 2; // round to nearest 0.5
+        return Math.round(sum / NUM_STRINGS * 2) / 2;
     }
 
     // --- Audio ---
@@ -286,7 +274,7 @@
         return notes[((midi%12)+12)%12] + (Math.floor(midi/12)-1);
     }
 
-    // --- Layout ---
+    // --- Layout (extended fretboard top to cover saddles) ---
     function getLayout() {
         const scalePx = BASE_SCALE_PX * widthScale;
         const nutX = FIXED_NUT_X;
@@ -303,17 +291,24 @@
         }
 
         const maxSaddle = Math.max(...actualSaddleXArr);
-        const w = maxSaddle + 150;
+        const w = maxSaddle + 180;
         const h = LOGICAL_HEIGHT;
-        const fbHeight = h*0.75 - h*0.10;
+        // Extended upward to fully cover saddles
+        const fretboardTop = h * 0.03;
+        const fretboardBottom = h * 0.75;
+        const fbHeight = fretboardBottom - fretboardTop;
+        const nutStringSpacing = fbHeight / (NUM_STRINGS + 0.4);
+        const saddleStringSpacing = fbHeight / (NUM_STRINGS - 0.2);
+        const stringYAtNut = (i) => fretboardTop + nutStringSpacing * (i + 0.2);
+        const stringYAtSaddle = (i) => fretboardTop + saddleStringSpacing * (i - 0.1);
+        const graphTop = h * 0.82;
+        const graphBottom = h * 0.97;
         return {
             w, h, nutX, openStartX, scalePx, fbHeight,
-            fretboardTop: h*0.10, fretboardBottom: h*0.75,
-            nutStringSpacing: fbHeight/(NUM_STRINGS+0.4),
-            saddleStringSpacing: fbHeight/(NUM_STRINGS-0.2),
-            stringYAtNut: (i) => h*0.10 + (fbHeight/(NUM_STRINGS+0.4))*(i+0.2),
-            stringYAtSaddle: (i) => h*0.10 + (fbHeight/(NUM_STRINGS-0.2))*(i-0.1),
-            graphTop: h*0.82, graphBottom: h*0.97,
+            fretboardTop, fretboardBottom,
+            nutStringSpacing, saddleStringSpacing,
+            stringYAtNut, stringYAtSaddle,
+            graphTop, graphBottom,
             nominalSaddleXArr, actualSaddleXArr, pixelsPerMm
         };
     }
@@ -350,15 +345,13 @@
         return {stringIdx: bestString, fretNum};
     }
 
-    // --- Pitch (per-string tuning offsets) ---
+    // --- Pitch ---
     function getCentsDeviation(stringIdx, fretNum) {
         const layout = getLayout();
         const Lnom_s = layout.nominalSaddleXArr[stringIdx] - layout.nutX;
         const Lactual_s = layout.actualSaddleXArr[stringIdx] - layout.nutX;
         const tuneFactor = Math.pow(2, stringTuningOffsets[stringIdx]/1200);
-
         if (fretNum === 0) return stringTuningOffsets[stringIdx];
-
         const fretPos = Lnom_s * (1 - 1/Math.pow(2, fretNum/12));
         const vibratingLength = Lactual_s - fretPos;
         const actualRatio = Lnom_s / vibratingLength;
@@ -395,21 +388,25 @@
         return {r:Math.round(hue2rgb(p,q,h+1/3)*255), g:Math.round(hue2rgb(p,q,h)*255), b:Math.round(hue2rgb(p,q,h-1/3)*255), alpha:0.55+s*0.4};
     }
 
-    // --- Drawing (unchanged) ---
+    // --- Drawing ---
     function drawFretboard(layout) {
         const {openStartX, nutX, fbHeight, fretboardTop, fretboardBottom, nutStringSpacing, actualSaddleXArr, nominalSaddleXArr} = layout;
         const maxSaddle = Math.max(...actualSaddleXArr);
-        const woodGrad = ctx.createLinearGradient(0, fretboardTop, 0, fretboardBottom);
+
+        // Extended wood background
+        const woodGrad = ctx.createLinearGradient(0, fretboardTop-8, 0, fretboardBottom+4);
         woodGrad.addColorStop(0,'#3d2817'); woodGrad.addColorStop(0.3,'#4a3020'); woodGrad.addColorStop(0.5,'#3e2516');
         woodGrad.addColorStop(0.7,'#4a3020'); woodGrad.addColorStop(1,'#382215');
         ctx.fillStyle = woodGrad;
-        ctx.fillRect(openStartX-10, fretboardTop-6, maxSaddle-openStartX+28, fretboardBottom-fretboardTop+12);
+        ctx.fillRect(openStartX-10, fretboardTop-8, maxSaddle-openStartX+28, fretboardBottom-fretboardTop+16);
         ctx.strokeStyle = 'rgba(0,0,0,0.05)'; ctx.lineWidth=1;
-        for (let gy=fretboardTop; gy<fretboardBottom; gy+=2.2) {
+        for (let gy=fretboardTop-6; gy<fretboardBottom+4; gy+=2.2) {
             ctx.beginPath(); ctx.moveTo(openStartX-8, gy); ctx.lineTo(maxSaddle+18, gy + Math.sin(gy*0.35+42)*4 + Math.sin(gy*0.8+17)*2); ctx.stroke();
         }
-        ctx.strokeStyle = '#1a0d04'; ctx.lineWidth=3.5; ctx.strokeRect(openStartX-5, fretboardTop-3, maxSaddle-openStartX+20, fretboardBottom-fretboardTop+6);
+        ctx.strokeStyle = '#1a0d04'; ctx.lineWidth=3.5;
+        ctx.strokeRect(openStartX-5, fretboardTop-6, maxSaddle-openStartX+20, fretboardBottom-fretboardTop+14);
 
+        // Cells
         for (let s=0; s<NUM_STRINGS; s++) {
             const actualSX = actualSaddleXArr[s];
             let color = centsToColor(getCentsDeviation(s,0));
@@ -428,13 +425,16 @@
             }
         }
 
+        // Frets — extended to cover full height
         for (let f=0; f<=24; f++) {
             const fx = (f===0) ? nutX : getFretX(f, layout);
             const fretW = (f>=20) ? 1.8 : 2.2;
-            ctx.fillStyle = 'rgba(0,0,0,0.45)'; ctx.fillRect(fx-1.2, fretboardTop-3, fretW+0.8, fretboardBottom-fretboardTop+6);
+            ctx.fillStyle = 'rgba(0,0,0,0.45)';
+            ctx.fillRect(fx-1.2, fretboardTop-5, fretW+0.8, fretboardBottom-fretboardTop+12);
             const grad = ctx.createLinearGradient(fx-0.8,0,fx+fretW-0.5,0);
             grad.addColorStop(0,'#999'); grad.addColorStop(0.35,'#e0e0e0'); grad.addColorStop(0.5,'#f5f5f5'); grad.addColorStop(0.65,'#e0e0e0'); grad.addColorStop(1,'#888');
-            ctx.fillStyle = grad; ctx.fillRect(fx-0.8, fretboardTop-2.5, fretW, fretboardBottom-fretboardTop+5);
+            ctx.fillStyle = grad;
+            ctx.fillRect(fx-0.8, fretboardTop-4, fretW, fretboardBottom-fretboardTop+10);
             if (f>0 && fretNumberFrets.has(f)) {
                 ctx.fillStyle = 'rgba(255,255,255,0.6)';
                 ctx.font = `bold ${Math.max(7, fbHeight*0.058)}px 'Segoe UI', sans-serif`;
@@ -443,6 +443,7 @@
             }
         }
 
+        // Inlays
         for (const df of dotFrets) {
             const fx = getFretX(df, layout);
             const fxPrev = df>0 ? getFretX(df-1, layout) : nutX;
@@ -458,11 +459,14 @@
             }
         }
 
+        // Nut
         const nutGrad = ctx.createLinearGradient(nutX-2.5,0,nutX+2.5,0);
         nutGrad.addColorStop(0,'#ccc'); nutGrad.addColorStop(0.4,'#fafafa'); nutGrad.addColorStop(0.6,'#fafafa'); nutGrad.addColorStop(1,'#bbb');
-        ctx.fillStyle = nutGrad; ctx.fillRect(nutX-2.5, fretboardTop-5, 5, fretboardBottom-fretboardTop+10);
-        ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth=1; ctx.strokeRect(nutX-2.5, fretboardTop-5, 5, fretboardBottom-fretboardTop+10);
+        ctx.fillStyle = nutGrad;
+        ctx.fillRect(nutX-2.5, fretboardTop-6, 5, fretboardBottom-fretboardTop+14);
+        ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth=1; ctx.strokeRect(nutX-2.5, fretboardTop-6, 5, fretboardBottom-fretboardTop+14);
 
+        // Strings
         for (let s=0; s<NUM_STRINGS; s++) {
             const yNut = layout.stringYAtNut(s), ySaddle = layout.stringYAtSaddle(s);
             const actualSX = actualSaddleXArr[s], thick = stringGauges[s]*(fbHeight/270);
@@ -478,25 +482,35 @@
             ctx.beginPath(); ctx.moveTo(openStartX, yNut-thick*0.2); ctx.lineTo(actualSX, ySaddle-thick*0.2); ctx.stroke();
         }
 
+        // Saddles
         const saddleW = fbHeight*0.03;
         for (let s=0; s<NUM_STRINGS; s++) {
             const actualSX = actualSaddleXArr[s], ySaddle = layout.stringYAtSaddle(s);
-            const yTop = ySaddle - fbHeight*0.08, yBottom = ySaddle + fbHeight*0.08;
+            const yTop = ySaddle - fbHeight*0.07, yBottom = ySaddle + fbHeight*0.07;
             const grad = ctx.createLinearGradient(actualSX-saddleW/2,0,actualSX+saddleW/2,0);
             grad.addColorStop(0,'#777'); grad.addColorStop(0.3,'#ddd'); grad.addColorStop(0.5,'#f5f5f5'); grad.addColorStop(0.7,'#ddd'); grad.addColorStop(1,'#666');
             ctx.fillStyle = grad; ctx.fillRect(actualSX-saddleW/2, yTop, saddleW, yBottom-yTop);
             ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth=1; ctx.strokeRect(actualSX-saddleW/2, yTop, saddleW, yBottom-yTop);
+
+            // Nut-to-saddle distance label
+            const distMm = nominalSaddleDistMm[s] + intonationOffsets[s] * 0.16;
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.font = `${Math.max(7, fbHeight*0.045)}px 'Segoe UI', sans-serif`;
+            ctx.textAlign = 'left';
+            ctx.fillText(`${distMm.toFixed(1)} mm`, actualSX + saddleW/2 + 4, ySaddle + fbHeight*0.015);
         }
 
+        // Nominal dashed
         for (let s=0; s<NUM_STRINGS; s++) {
             if (Math.abs(intonationOffsets[s]) < 0.2) continue;
             const nominalX = nominalSaddleXArr[s];
-            const yTop = layout.stringYAtSaddle(s) - fbHeight*0.1, yBottom = layout.stringYAtSaddle(s) + fbHeight*0.1;
+            const yTop = layout.stringYAtSaddle(s) - fbHeight*0.08, yBottom = layout.stringYAtSaddle(s) + fbHeight*0.08;
             ctx.setLineDash([2,4]); ctx.strokeStyle = 'rgba(255,200,100,0.5)'; ctx.lineWidth=1;
             ctx.beginPath(); ctx.moveTo(nominalX, yTop); ctx.lineTo(nominalX, yBottom); ctx.stroke();
             ctx.setLineDash([]);
         }
 
+        // Vibrating strings
         const now = performance.now()/1000;
         for (let v=activeVibrations.length-1; v>=0; v--) {
             const vib = activeVibrations[v];
@@ -522,6 +536,7 @@
             ctx.stroke();
         }
 
+        // Open string labels
         for (let s=0; s<NUM_STRINGS; s++) {
             const yNut = layout.stringYAtNut(s);
             const ni = getNoteInfo(s,0);
@@ -532,6 +547,7 @@
             ctx.fillText(nn, openStartX - 10, yNut+fbHeight*0.016);
         }
 
+        // Hover highlight
         if (hoveredString>=0 && hoveredFret>=0 && hoveredString<NUM_STRINGS) {
             let cellLeft, cellRight;
             if (hoveredFret === 0) { cellLeft = openStartX; cellRight = nutX; }
@@ -724,23 +740,22 @@
         }
     }, {passive:false});
 
-    // --- Control handlers with average display ---
+    // --- Control handlers (no clamping on per-string tuning offsets) ---
     tuningSlider.addEventListener('input', ()=>{
         const newVal = parseInt(tuningSlider.value);
         if (selectedString === -1) {
             const oldAvg = getAverageTuning();
             const delta = newVal - oldAvg;
             for (let i=0; i<NUM_STRINGS; i++) {
-                stringTuningOffsets[i] = Math.min(50, Math.max(-50, stringTuningOffsets[i] + delta));
+                stringTuningOffsets[i] += delta;
             }
             const newAvg = getAverageTuning();
-            tuningSlider.value = newAvg;
-            lastTuneSliderVal = newAvg;
+            tuningSlider.value = Math.min(50, Math.max(-50, newAvg));
+            lastTuneSliderVal = tuningSlider.value;
         } else {
-            const clamped = Math.min(50, Math.max(-50, newVal));
-            stringTuningOffsets[selectedString] = clamped;
-            tuningSlider.value = clamped;
-            lastTuneSliderVal = clamped;
+            stringTuningOffsets[selectedString] = newVal;
+            tuningSlider.value = Math.min(50, Math.max(-50, newVal));
+            lastTuneSliderVal = tuningSlider.value;
         }
         updateTuningDisplay();
         updateInfoPanel(); drawAll();
@@ -848,10 +863,10 @@
     presetDetuneBtn.addEventListener('click', ()=>{
         stringTuningOffsets = [-22, -28, -30, -25, -23, -26];
         if (selectedString === -1) {
-            tuningSlider.value = getAverageTuning();
+            tuningSlider.value = Math.min(50, Math.max(-50, getAverageTuning()));
             lastTuneSliderVal = tuningSlider.value;
         } else {
-            tuningSlider.value = stringTuningOffsets[selectedString];
+            tuningSlider.value = Math.min(50, Math.max(-50, stringTuningOffsets[selectedString]));
             lastTuneSliderVal = tuningSlider.value;
         }
         updateTuningDisplay();
@@ -862,12 +877,12 @@
         intonationOffsets = [-15, -17, -19, -16, -18, -20];
         stringTuningOffsets = [5, -8, -20, 3, -5, 2];
         if (selectedString === -1) {
-            tuningSlider.value = getAverageTuning();
+            tuningSlider.value = Math.min(50, Math.max(-50, getAverageTuning()));
             lastTuneSliderVal = tuningSlider.value;
             intonationSlider.value = getAverageIntonation();
             lastIntSliderVal = intonationSlider.value;
         } else {
-            tuningSlider.value = stringTuningOffsets[selectedString];
+            tuningSlider.value = Math.min(50, Math.max(-50, stringTuningOffsets[selectedString]));
             lastTuneSliderVal = tuningSlider.value;
             intonationSlider.value = intonationOffsets[selectedString];
             lastIntSliderVal = intonationSlider.value;
@@ -884,16 +899,16 @@
 
         if (selectedString < 0) {
             stringSelectBtn.textContent = '📍 All Strings';
-            tuningSlider.value = getAverageTuning();
+            tuningSlider.value = Math.min(50, Math.max(-50, getAverageTuning()));
             lastTuneSliderVal = tuningSlider.value;
             intonationSlider.value = getAverageIntonation();
             lastIntSliderVal = intonationSlider.value;
         } else {
             stringSelectBtn.textContent = `📍 String ${selectedString+1} (${midiToNoteName(stringTuningMidiBase[selectedString])})`;
-            tuningSlider.value = stringTuningOffsets[selectedString];
-            lastTuneSliderVal = stringTuningOffsets[selectedString];
+            tuningSlider.value = Math.min(50, Math.max(-50, stringTuningOffsets[selectedString]));
+            lastTuneSliderVal = tuningSlider.value;
             intonationSlider.value = intonationOffsets[selectedString];
-            lastIntSliderVal = intonationOffsets[selectedString];
+            lastIntSliderVal = intonationSlider.value;
         }
         updateTuningDisplay();
         updateIntonationDisplay();
